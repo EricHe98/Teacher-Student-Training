@@ -20,4 +20,8 @@ for i in range(0, len(mapping)):
 	new_VGG.params[new][1].data[...] = trained_VGG.params[trained][1].data[...]
 	print "mapped %s to %s" % (trained, new)
 
+for key in new_VGG.params.keys():
+	if key not in mapping.keys():
+		new_VGG.params.pop(key)
+
 new_VGG.save("preloaded_VGG.caffemodel")
