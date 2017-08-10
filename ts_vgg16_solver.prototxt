@@ -1,5 +1,5 @@
-net: "ts_vgg16_test.prototxt"
-test_iter: 1000
+net: "Teacher-Student-Training/ts_vgg16_train_val.prototxt"
+test_iter: 100
 test_interval: 1000
 base_lr: 0.01
 lr_policy: "step"

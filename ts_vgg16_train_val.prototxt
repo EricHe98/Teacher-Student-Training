@@ -4,14 +4,36 @@ layer {
   type: "Data"
   top: "data"
   top: "label"
+  include {
+    phase: TRAIN
+  }
   transform_param {
     mirror: true
     crop_size: 227
-    mean_file: "imagenet/imagenet_mean.binaryproto"
+    mean_file: "/home/ubuntu/caffe/data/ilsvrc12/imagenet_mean.binaryproto"
   }
   data_param {
-    source: "imagenet/ilsvrc12_train_lmdb"
-    batch_size: 32
+    source: "/home/ubuntu/caffe/examples/imagenet/ilsvrc12_train_lmdb"
+    batch_size: 20
+    backend: LMDB
+  }
+}
+layer {
+  name: "data"
+  type: "Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TEST
+  }
+  transform_param {
+    mirror: true
+    crop_size: 227
+    mean_file: "/home/ubuntu/caffe/data/ilsvrc12/imagenet_mean.binaryproto"
+  }
+  data_param {
+    source: "/home/ubuntu/caffe/examples/imagenet/ilsvrc12_val_lmdb"
+    batch_size: 75
     backend: LMDB
   }
 }
@@ -754,7 +776,7 @@ layer {
   bottom: "fc_st_8"
   bottom: "label"
   top: "loss"
-  loss_weight: 0.99
+  loss_weight: 0.995
 }
 layer {
   bottom: "prob"
@@ -762,7 +784,7 @@ layer {
   top: "st_loss"
   name: "st_loss"
   type: "SigmoidCrossEntropyLoss"
-  loss_weight: 0.01
+  loss_weight: 0.005
 }
 layer {
   name: "accuracy/top1"
@@ -773,6 +795,9 @@ layer {
   accuracy_param {
     top_k: 1
   }
+  include: {
+    phase: TEST
+  }
 }
 layer {
   name: "accuracy/top5"
@@ -782,5 +807,8 @@ layer {
   top: "accuracy@5"
   accuracy_param {
     top_k: 5
+  }
+  include: {
+    phase: TEST
   }
 }
