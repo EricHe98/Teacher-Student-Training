@@ -471,12 +471,6 @@ layer {
   type: "Softmax"
 }
 layer {
-  bottom: "fc8"
-  top: "soft_label"
-  name: "soft_label"
-  type: "Softmax"
-}
-layer {
   name: "loss"
   type: "SoftmaxWithLoss"
   bottom: "fc_st_8"
