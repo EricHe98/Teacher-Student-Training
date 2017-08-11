@@ -23,10 +23,7 @@ mapping = {"conv1_1" : "conv_st_1_1",
 		   "conv4_3" : "conv_st_4_3",
 		   "conv5_1" : "conv_st_5_1",
 		   "conv5_2" : "conv_st_5_2",
-		   "conv5_3" : "conv_st_5_3",
-		   "fc6" : "fc_st_6",
-		   "fc7" : "fc_st_7",
-		   "fc8" : "fc_st_8"}
+		   "conv5_3" : "conv_st_5_3",}
 
 for i in range(0, len(mapping)):
 	trained = mapping.keys()[i]
