@@ -13,7 +13,7 @@ layers {
     mirror: true
  }
  data_param {
-    source: "/home/ubuntu/caffe/examples/imagenet/ilsvrc12_val_lmdb"
+    source: "/home/ubuntu/caffe/examples/imagenet/ilsvrc12_train_lmdb"
     batch_size: 64
     backend: LMDB
   }
