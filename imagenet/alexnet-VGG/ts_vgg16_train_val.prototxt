@@ -253,6 +253,12 @@ layer {
 layer {
   name: "fc6"
   type: "InnerProduct"
+  param {
+  lr_mult: 0
+  }
+  param {
+  lr_mult: 0
+  }
   bottom: "pool5"
   top: "fc6"
   param {
@@ -282,6 +288,12 @@ layer {
 layer {
   name: "fc7"
   type: "InnerProduct"
+  param {
+  lr_mult: 0
+  }
+  param {
+  lr_mult: 0
+  }
   bottom: "fc6"
   top: "fc7"
   param {
@@ -311,6 +323,12 @@ layer {
 layer {
   name: "fc8"
   type: "InnerProduct"
+  param {
+  lr_mult: 0
+  }
+  param {
+  lr_mult: 0
+  }
   bottom: "fc7"
   top: "fc8"
   param {
@@ -347,6 +365,12 @@ layer {
       type: "constant"
       value: 0.0
     }
+    param {
+    lr_mult: 0
+    }
+    param {
+    lr_mult: 0
+    }
   }
 }
 layer {
@@ -370,6 +394,12 @@ layer {
     bias_filler {
       type: "constant"
       value: 0.0
+    }
+    param {
+    lr_mult: 0
+    }
+    param {
+    lr_mult: 0
     }
   }
 }
@@ -406,6 +436,12 @@ layer {
       type: "constant"
       value: 0.0
     }
+    param {
+    lr_mult: 0
+    }
+    param {
+    lr_mult: 0
+    }
   }
 }
 layer {
@@ -429,6 +465,12 @@ layer {
     bias_filler {
       type: "constant"
       value: 0.0
+    }
+    param {
+    lr_mult: 0
+    }
+    param {
+    lr_mult: 0
     }
   }
 }
@@ -465,6 +507,12 @@ layer {
       type: "constant"
       value: 0.0
     }
+    param {
+    lr_mult: 0
+    }
+    param {
+    lr_mult: 0
+    }
   }
 }
 layer {
@@ -489,6 +537,12 @@ layer {
       type: "constant"
       value: 0.0
     }
+    param {
+    lr_mult: 0
+    }
+    param {
+    lr_mult: 0
+    }
   }
 }
 layer {
@@ -512,6 +566,12 @@ layer {
     bias_filler {
       type: "constant"
       value: 0.0
+    }
+    param {
+    lr_mult: 0
+    }
+    param {
+    lr_mult: 0
     }
   }
 }
@@ -548,6 +608,12 @@ layer {
       type: "constant"
       value: 0.0
     }
+    param {
+    lr_mult: 0
+    }
+    param {
+    lr_mult: 0
+    }
   }
 }
 layer {
@@ -572,6 +638,12 @@ layer {
       type: "constant"
       value: 0.0
     }
+    param {
+    lr_mult: 0
+    }
+    param {
+    lr_mult: 0
+    }
   }
 }
 layer {
@@ -595,6 +667,12 @@ layer {
     bias_filler {
       type: "constant"
       value: 0.0
+    }
+    param {
+    lr_mult: 0
+    }
+    param {
+    lr_mult: 0
     }
   }
 }
@@ -631,6 +709,12 @@ layer {
       type: "constant"
       value: 0.0
     }
+    param {
+    lr_mult: 0
+    }
+    param {
+    lr_mult: 0
+    }
   }
 }
 layer {
@@ -654,6 +738,12 @@ layer {
     bias_filler {
       type: "constant"
       value: 0.0
+    }
+    param {
+    lr_mult: 0
+    }
+    param {
+    lr_mult: 0
     }
   }
 }
@@ -679,6 +769,12 @@ layer {
       type: "constant"
       value: 0.0
     }
+    param {
+    lr_mult: 0
+    }
+    param {
+    lr_mult: 0
+    }
   }
 }
 layer {
@@ -703,6 +799,12 @@ layer {
   top: "fc_st_6"
   name: "fc_st_6"
   type: "InnerProduct"
+  param {
+  lr_mult: 0
+  }
+  param {
+  lr_mult: 0
+  }
   inner_product_param {
     num_output: 4096
     weight_filler {
@@ -725,6 +827,12 @@ layer {
   top: "fc_st_7"
   name: "fc_st_7"
   type: "InnerProduct"
+  param {
+  lr_mult: 0
+  }
+  param {
+  lr_mult: 0
+  }
   inner_product_param {
     num_output: 4096
     weight_filler {
@@ -776,7 +884,7 @@ layer {
   bottom: "fc_st_8"
   bottom: "label"
   top: "loss"
-  loss_weight: 0.995
+  propagate_down: false
 }
 layer {
   bottom: "prob"
@@ -784,7 +892,6 @@ layer {
   top: "st_loss"
   name: "st_loss"
   type: "SigmoidCrossEntropyLoss"
-  loss_weight: 0.005
 }
 layer {
   name: "accuracy/top1"
