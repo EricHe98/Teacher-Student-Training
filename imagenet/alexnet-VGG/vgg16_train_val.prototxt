@@ -9,12 +9,14 @@ layer {
   }
   transform_param {
     mirror: true
-    crop_size: 227
-    mean_file: "/home/ubuntu/caffe/data/ilsvrc12/imagenet_mean.binaryproto"
+    crop_size: 224
+    mean_value: 104
+    mean_value: 117
+    mean_value: 123
   }
   data_param {
     source: "/home/ubuntu/caffe/examples/imagenet/ilsvrc12_train_lmdb"
-    batch_size: 20
+    batch_size: 16
     backend: LMDB
   }
 }
@@ -28,8 +30,10 @@ layer {
   }
   transform_param {
     mirror: true
-    crop_size: 227
-    mean_file: "/home/ubuntu/caffe/data/ilsvrc12/imagenet_mean.binaryproto"
+    crop_size: 224
+    mean_value: 104
+    mean_value: 117
+    mean_value: 123
   }
   data_param {
     source: "/home/ubuntu/caffe/examples/imagenet/ilsvrc12_val_lmdb"
@@ -465,18 +469,11 @@ layer {
   }
 }
 layer {
-  bottom: "fc_st_8"
-  top: "prob"
-  name: "prob"
-  type: "Softmax"
-}
-layer {
   name: "loss"
   type: "SoftmaxWithLoss"
   bottom: "fc_st_8"
   bottom: "label"
   top: "loss"
-  loss_weight: 0.995
 }
 layer {
   name: "accuracy/top1"

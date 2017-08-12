@@ -1,0 +1,161 @@
+name: "AlexNet-Teacher VGG16-Student"
+layer {
+  name: "data"
+  type: "Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TRAIN
+  }
+  transform_param {
+    mirror: true
+    crop_size: 224
+    mean_value: 104
+    mean_value: 117
+    mean_value: 123
+  }
+  data_param {
+    source: "/home/ubuntu/caffe/examples/imagenet/ilsvrc12_val_lmdb"
+    batch_size: 64
+    backend: LMDB
+  }
+}
+layer {
+  name: "data"
+  type: "Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TEST
+  }
+  transform_param {
+    mirror: true
+    crop_size: 227
+    mean_value: 104
+    mean_value: 117
+    mean_value: 123
+  }
+  data_param {
+    source: "/home/ubuntu/caffe/examples/imagenet/ilsvrc12_val_lmdb"
+    batch_size: 75
+    backend: LMDB
+  }
+}
+layer {
+  bottom: "data"
+  top: "conv_st_1_1"
+  name: "conv_st_1_1"
+  type: "Convolution"
+  convolution_param {
+    num_output: 64
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.0
+    }
+  }
+}
+layer {
+  bottom: "conv_st_1_1"
+  top: "conv_st_1_1"
+  name: "relu_st_1_1"
+  type: "ReLU"
+}
+layer {
+  bottom: "conv_st_1_1"
+  top: "conv_st_1_2"
+  name: "conv_st_1_2"
+  type: "Convolution"
+  convolution_param {
+    num_output: 64
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.0
+    }
+  }
+}
+layer {
+  bottom: "conv_st_1_2"
+  top: "conv_st_1_2"
+  name: "relu_st_1_2"
+  type: "ReLU"
+}
+layer {
+  bottom: "conv_st_1_2"
+  top: "pool_st_1"
+  name: "pool_st_1"
+  type: "Pooling"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+layer {
+  bottom: "pool_st_1"
+  top: "conv_st_2_1"
+  name: "conv_st_2_1"
+  type: "Convolution"
+  convolution_param {
+    num_output: 128
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.0
+    }
+  }
+}
+layer {
+  bottom: "conv_st_2_1"
+  top: "conv_st_2_1"
+  name: "relu_st_2_1"
+  type: "ReLU"
+}
+layer {
+  bottom: "conv_st_2_1"
+  top: "conv_st_2_2"
+  name: "conv_st_2_2"
+  type: "Convolution"
+  convolution_param {
+    num_output: 128
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+      value: 0.0
+    }
+  }
+}
+layer {
+  bottom: "conv_st_2_2"
+  top: "conv_st_2_2"
+  name: "relu_st_2_2"
+  type: "ReLU"
+}
+layer {
+  bottom: "conv_st_2_2"
+  top: "pool_st_2"
+  name: "pool_st_2"
+  type: "Pooling"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
