@@ -13,8 +13,8 @@ layers {
     mirror: true
  }
  data_param {
-    source: "/home/ubuntu/caffe/examples/imagenet/ilsvrc12_val_lmdb"
-    batch_size: 64
+    source: "/home/ubuntu/caffe/examples/imagenet/ilsvrc12_train_lmdb"
+    batch_size: 20
     backend: LMDB
   }
   top: "data"
@@ -351,9 +351,6 @@ layers {
   inner_product_param {
     num_output: 4096
   }
-  blobs_lr: 0
-  blobs_lr: 0
-}
 layers {
   bottom: "fc6"
   top: "fc6"
@@ -377,9 +374,6 @@ layers {
   inner_product_param {
     num_output: 4096
   }
-  blobs_lr: 0
-  blobs_lr: 0
-}
 layers {
   bottom: "fc7"
   top: "fc7"
@@ -403,8 +397,6 @@ layers {
   inner_product_param {
     num_output: 1000
   }
-  blobs_lr: 0
-  blobs_lr: 0
 }
 layers {
   name: "loss"
