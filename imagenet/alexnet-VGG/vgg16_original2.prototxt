@@ -351,6 +351,7 @@ layers {
   inner_product_param {
     num_output: 4096
   }
+}
 layers {
   bottom: "fc6"
   top: "fc6"
