@@ -374,6 +374,7 @@ layers {
   inner_product_param {
     num_output: 4096
   }
+}
 layers {
   bottom: "fc7"
   top: "fc7"
