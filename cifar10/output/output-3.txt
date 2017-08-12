@@ -1,0 +1,2298 @@
+I0801 02:22:48.299895  2097 caffe.cpp:218] Using GPUs 0
+I0801 02:22:48.300210  2097 caffe.cpp:223] GPU 0: GeForce GTX 1060 3GB
+I0801 02:22:48.468027  2097 solver.cpp:44] Initializing solver from parameters: 
+test_iter: 100
+test_interval: 10
+base_lr: 0.001
+display: 10
+max_iter: 1000
+lr_policy: "step"
+gamma: 0.5
+momentum: 0.9
+weight_decay: 0.004
+stepsize: 10000
+snapshot: 10000
+snapshot_prefix: "ts_cifar10/"
+solver_mode: GPU
+device_id: 0
+net: "ts_cifar10.prototxt"
+train_state {
+  level: 0
+  stage: ""
+}
+I0801 02:22:48.468222  2097 solver.cpp:87] Creating training net from net file: ts_cifar10.prototxt
+I0801 02:22:48.468446  2097 net.cpp:294] The NetState phase (0) differed from the phase (1) specified by a rule in layer cifar
+I0801 02:22:48.468457  2097 net.cpp:294] The NetState phase (0) differed from the phase (1) specified by a rule in layer accuracy
+I0801 02:22:48.468559  2097 net.cpp:51] Initializing net from parameters: 
+name: "CIFAR10_full"
+state {
+  phase: TRAIN
+  level: 0
+  stage: ""
+}
+layer {
+  name: "cifar"
+  type: "Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TRAIN
+  }
+  transform_param {
+    mean_file: "/opt/caffe/examples/cifar10/mean.binaryproto"
+  }
+  data_param {
+    source: "/opt/caffe/examples/cifar10/cifar10_train_lmdb"
+    batch_size: 100
+    backend: LMDB
+  }
+}
+layer {
+  name: "conv_s_1"
+  type: "Convolution"
+  bottom: "data"
+  top: "conv_s_1"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 32
+    pad: 2
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.0001
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "pool_s_1"
+  type: "Pooling"
+  bottom: "conv_s_1"
+  top: "pool_s_1"
+  pooling_param {
+    pool: MAX
+    kernel_size: 3
+    stride: 2
+  }
+}
+layer {
+  name: "relu_s_1"
+  type: "ReLU"
+  bottom: "pool_s_1"
+  top: "pool_s_1"
+}
+layer {
+  name: "norm_s_1"
+  type: "LRN"
+  bottom: "pool_s_1"
+  top: "norm_s_1"
+  lrn_param {
+    local_size: 3
+    alpha: 5e-05
+    beta: 0.75
+    norm_region: WITHIN_CHANNEL
+  }
+}
+layer {
+  name: "conv_s_2"
+  type: "Convolution"
+  bottom: "norm_s_1"
+  top: "conv_s_2"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 32
+    pad: 2
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu_s_2"
+  type: "ReLU"
+  bottom: "conv_s_2"
+  top: "conv_s_2"
+}
+layer {
+  name: "pool_s_2"
+  type: "Pooling"
+  bottom: "conv_s_2"
+  top: "pool_s_2"
+  pooling_param {
+    pool: AVE
+    kernel_size: 3
+    stride: 2
+  }
+}
+layer {
+  name: "norm_s_2"
+  type: "LRN"
+  bottom: "pool_s_2"
+  top: "norm_s_2"
+  lrn_param {
+    local_size: 3
+    alpha: 5e-05
+    beta: 0.75
+    norm_region: WITHIN_CHANNEL
+  }
+}
+layer {
+  name: "conv_s_3"
+  type: "Convolution"
+  bottom: "norm_s_2"
+  top: "conv_s_3"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 64
+    pad: 2
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu_s_3"
+  type: "ReLU"
+  bottom: "conv_s_3"
+  top: "conv_s_3"
+}
+layer {
+  name: "pool_s_3"
+  type: "Pooling"
+  bottom: "conv_s_3"
+  top: "pool_s_3"
+  pooling_param {
+    pool: AVE
+    kernel_size: 3
+    stride: 2
+  }
+}
+layer {
+  name: "ip_s_1"
+  type: "InnerProduct"
+  bottom: "pool_s_3"
+  top: "ip_s_1"
+  param {
+    lr_mult: 1
+    decay_mult: 250
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 10
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "conv_t_1"
+  type: "Convolution"
+  bottom: "data"
+  top: "conv_t_1"
+  param {
+    lr_mult: 0
+  }
+  param {
+    lr_mult: 0
+  }
+  convolution_param {
+    num_output: 32
+    pad: 2
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.0001
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "pool_t_1"
+  type: "Pooling"
+  bottom: "conv_t_1"
+  top: "pool_t_1"
+  pooling_param {
+    pool: MAX
+    kernel_size: 3
+    stride: 2
+  }
+}
+layer {
+  name: "relu_t_1"
+  type: "ReLU"
+  bottom: "pool_t_1"
+  top: "pool_t_1"
+}
+layer {
+  name: "norm_t_1"
+  type: "LRN"
+  bottom: "pool_t_1"
+  top: "norm_t_1"
+  lrn_param {
+    local_size: 3
+    alpha: 5e-05
+    beta: 0.75
+    norm_region: WITHIN_CHANNEL
+  }
+}
+layer {
+  name: "conv_t_2"
+  type: "Convolution"
+  bottom: "norm_t_1"
+  top: "conv_t_2"
+  param {
+    lr_mult: 0
+  }
+  param {
+    lr_mult: 0
+  }
+  convolution_param {
+    num_output: 32
+    pad: 2
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu_t_2"
+  type: "ReLU"
+  bottom: "conv_t_2"
+  top: "conv_t_2"
+}
+layer {
+  name: "pool_t_2"
+  type: "Pooling"
+  bottom: "conv_t_2"
+  top: "pool_t_2"
+  pooling_param {
+    pool: AVE
+    kernel_size: 3
+    stride: 2
+  }
+}
+layer {
+  name: "norm_t_2"
+  type: "LRN"
+  bottom: "pool_t_2"
+  top: "norm_t_2"
+  lrn_param {
+    local_size: 3
+    alpha: 5e-05
+    beta: 0.75
+    norm_region: WITHIN_CHANNEL
+  }
+}
+layer {
+  name: "conv_t_3"
+  type: "Convolution"
+  bottom: "norm_t_2"
+  top: "conv_t_3"
+  param {
+    lr_mult: 0
+  }
+  param {
+    lr_mult: 0
+  }
+  convolution_param {
+    num_output: 64
+    pad: 2
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu_t_3"
+  type: "ReLU"
+  bottom: "conv_t_3"
+  top: "conv_t_3"
+}
+layer {
+  name: "pool_t_3"
+  type: "Pooling"
+  bottom: "conv_t_3"
+  top: "pool_t_3"
+  pooling_param {
+    pool: AVE
+    kernel_size: 3
+    stride: 2
+  }
+}
+layer {
+  name: "ip_t_1"
+  type: "InnerProduct"
+  bottom: "pool_t_3"
+  top: "ip_t_1"
+  param {
+    lr_mult: 0
+  }
+  param {
+    lr_mult: 0
+  }
+  inner_product_param {
+    num_output: 10
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "sm_s_1"
+  type: "Softmax"
+  bottom: "ip_s_1"
+  top: "sm_s_1"
+}
+layer {
+  name: "sm_t_1"
+  type: "Softmax"
+  bottom: "ip_t_1"
+  top: "sm_t_1"
+}
+layer {
+  name: "ts_loss"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "sm_s_1"
+  bottom: "sm_t_1"
+  top: "ts_loss"
+  loss_weight: 0.3
+}
+layer {
+  name: "loss"
+  type: "SoftmaxWithLoss"
+  bottom: "ip_s_1"
+  bottom: "label"
+  top: "loss"
+  loss_weight: 0.7
+}
+I0801 02:22:48.468648  2097 layer_factory.hpp:77] Creating layer cifar
+I0801 02:22:48.468735  2097 db_lmdb.cpp:35] Opened lmdb /opt/caffe/examples/cifar10/cifar10_train_lmdb
+I0801 02:22:48.468752  2097 net.cpp:84] Creating Layer cifar
+I0801 02:22:48.468757  2097 net.cpp:380] cifar -> data
+I0801 02:22:48.468773  2097 net.cpp:380] cifar -> label
+I0801 02:22:48.468783  2097 data_transformer.cpp:25] Loading mean file from: /opt/caffe/examples/cifar10/mean.binaryproto
+I0801 02:22:48.469908  2097 data_layer.cpp:45] output data size: 100,3,32,32
+I0801 02:22:48.473419  2097 net.cpp:122] Setting up cifar
+I0801 02:22:48.473434  2097 net.cpp:129] Top shape: 100 3 32 32 (307200)
+I0801 02:22:48.473438  2097 net.cpp:129] Top shape: 100 (100)
+I0801 02:22:48.473439  2097 net.cpp:137] Memory required for data: 1229200
+I0801 02:22:48.473448  2097 layer_factory.hpp:77] Creating layer data_cifar_0_split
+I0801 02:22:48.473459  2097 net.cpp:84] Creating Layer data_cifar_0_split
+I0801 02:22:48.473464  2097 net.cpp:406] data_cifar_0_split <- data
+I0801 02:22:48.473474  2097 net.cpp:380] data_cifar_0_split -> data_cifar_0_split_0
+I0801 02:22:48.473481  2097 net.cpp:380] data_cifar_0_split -> data_cifar_0_split_1
+I0801 02:22:48.473518  2097 net.cpp:122] Setting up data_cifar_0_split
+I0801 02:22:48.473522  2097 net.cpp:129] Top shape: 100 3 32 32 (307200)
+I0801 02:22:48.473525  2097 net.cpp:129] Top shape: 100 3 32 32 (307200)
+I0801 02:22:48.473526  2097 net.cpp:137] Memory required for data: 3686800
+I0801 02:22:48.473528  2097 layer_factory.hpp:77] Creating layer conv_s_1
+I0801 02:22:48.473542  2097 net.cpp:84] Creating Layer conv_s_1
+I0801 02:22:48.473557  2097 net.cpp:406] conv_s_1 <- data_cifar_0_split_0
+I0801 02:22:48.473562  2097 net.cpp:380] conv_s_1 -> conv_s_1
+I0801 02:22:48.783529  2097 net.cpp:122] Setting up conv_s_1
+I0801 02:22:48.783551  2097 net.cpp:129] Top shape: 100 32 32 32 (3276800)
+I0801 02:22:48.783553  2097 net.cpp:137] Memory required for data: 16794000
+I0801 02:22:48.783566  2097 layer_factory.hpp:77] Creating layer pool_s_1
+I0801 02:22:48.783576  2097 net.cpp:84] Creating Layer pool_s_1
+I0801 02:22:48.783578  2097 net.cpp:406] pool_s_1 <- conv_s_1
+I0801 02:22:48.783582  2097 net.cpp:380] pool_s_1 -> pool_s_1
+I0801 02:22:48.783619  2097 net.cpp:122] Setting up pool_s_1
+I0801 02:22:48.783624  2097 net.cpp:129] Top shape: 100 32 16 16 (819200)
+I0801 02:22:48.783627  2097 net.cpp:137] Memory required for data: 20070800
+I0801 02:22:48.783628  2097 layer_factory.hpp:77] Creating layer relu_s_1
+I0801 02:22:48.783632  2097 net.cpp:84] Creating Layer relu_s_1
+I0801 02:22:48.783635  2097 net.cpp:406] relu_s_1 <- pool_s_1
+I0801 02:22:48.783638  2097 net.cpp:367] relu_s_1 -> pool_s_1 (in-place)
+I0801 02:22:48.783962  2097 net.cpp:122] Setting up relu_s_1
+I0801 02:22:48.783968  2097 net.cpp:129] Top shape: 100 32 16 16 (819200)
+I0801 02:22:48.783970  2097 net.cpp:137] Memory required for data: 23347600
+I0801 02:22:48.783972  2097 layer_factory.hpp:77] Creating layer norm_s_1
+I0801 02:22:48.783979  2097 net.cpp:84] Creating Layer norm_s_1
+I0801 02:22:48.783982  2097 net.cpp:406] norm_s_1 <- pool_s_1
+I0801 02:22:48.783984  2097 net.cpp:380] norm_s_1 -> norm_s_1
+I0801 02:22:48.784509  2097 net.cpp:122] Setting up norm_s_1
+I0801 02:22:48.784517  2097 net.cpp:129] Top shape: 100 32 16 16 (819200)
+I0801 02:22:48.784518  2097 net.cpp:137] Memory required for data: 26624400
+I0801 02:22:48.784520  2097 layer_factory.hpp:77] Creating layer conv_s_2
+I0801 02:22:48.784528  2097 net.cpp:84] Creating Layer conv_s_2
+I0801 02:22:48.784529  2097 net.cpp:406] conv_s_2 <- norm_s_1
+I0801 02:22:48.784533  2097 net.cpp:380] conv_s_2 -> conv_s_2
+I0801 02:22:48.786032  2097 net.cpp:122] Setting up conv_s_2
+I0801 02:22:48.786041  2097 net.cpp:129] Top shape: 100 32 16 16 (819200)
+I0801 02:22:48.786042  2097 net.cpp:137] Memory required for data: 29901200
+I0801 02:22:48.786048  2097 layer_factory.hpp:77] Creating layer relu_s_2
+I0801 02:22:48.786052  2097 net.cpp:84] Creating Layer relu_s_2
+I0801 02:22:48.786054  2097 net.cpp:406] relu_s_2 <- conv_s_2
+I0801 02:22:48.786057  2097 net.cpp:367] relu_s_2 -> conv_s_2 (in-place)
+I0801 02:22:48.786171  2097 net.cpp:122] Setting up relu_s_2
+I0801 02:22:48.786177  2097 net.cpp:129] Top shape: 100 32 16 16 (819200)
+I0801 02:22:48.786180  2097 net.cpp:137] Memory required for data: 33178000
+I0801 02:22:48.786181  2097 layer_factory.hpp:77] Creating layer pool_s_2
+I0801 02:22:48.786186  2097 net.cpp:84] Creating Layer pool_s_2
+I0801 02:22:48.786188  2097 net.cpp:406] pool_s_2 <- conv_s_2
+I0801 02:22:48.786191  2097 net.cpp:380] pool_s_2 -> pool_s_2
+I0801 02:22:48.786501  2097 net.cpp:122] Setting up pool_s_2
+I0801 02:22:48.786509  2097 net.cpp:129] Top shape: 100 32 8 8 (204800)
+I0801 02:22:48.786511  2097 net.cpp:137] Memory required for data: 33997200
+I0801 02:22:48.786514  2097 layer_factory.hpp:77] Creating layer norm_s_2
+I0801 02:22:48.786516  2097 net.cpp:84] Creating Layer norm_s_2
+I0801 02:22:48.786519  2097 net.cpp:406] norm_s_2 <- pool_s_2
+I0801 02:22:48.786522  2097 net.cpp:380] norm_s_2 -> norm_s_2
+I0801 02:22:48.786700  2097 net.cpp:122] Setting up norm_s_2
+I0801 02:22:48.786705  2097 net.cpp:129] Top shape: 100 32 8 8 (204800)
+I0801 02:22:48.786706  2097 net.cpp:137] Memory required for data: 34816400
+I0801 02:22:48.786708  2097 layer_factory.hpp:77] Creating layer conv_s_3
+I0801 02:22:48.786715  2097 net.cpp:84] Creating Layer conv_s_3
+I0801 02:22:48.786717  2097 net.cpp:406] conv_s_3 <- norm_s_2
+I0801 02:22:48.786721  2097 net.cpp:380] conv_s_3 -> conv_s_3
+I0801 02:22:48.787716  2097 net.cpp:122] Setting up conv_s_3
+I0801 02:22:48.787724  2097 net.cpp:129] Top shape: 100 64 8 8 (409600)
+I0801 02:22:48.787725  2097 net.cpp:137] Memory required for data: 36454800
+I0801 02:22:48.787744  2097 layer_factory.hpp:77] Creating layer relu_s_3
+I0801 02:22:48.787748  2097 net.cpp:84] Creating Layer relu_s_3
+I0801 02:22:48.787750  2097 net.cpp:406] relu_s_3 <- conv_s_3
+I0801 02:22:48.787753  2097 net.cpp:367] relu_s_3 -> conv_s_3 (in-place)
+I0801 02:22:48.787866  2097 net.cpp:122] Setting up relu_s_3
+I0801 02:22:48.787873  2097 net.cpp:129] Top shape: 100 64 8 8 (409600)
+I0801 02:22:48.787874  2097 net.cpp:137] Memory required for data: 38093200
+I0801 02:22:48.787876  2097 layer_factory.hpp:77] Creating layer pool_s_3
+I0801 02:22:48.787879  2097 net.cpp:84] Creating Layer pool_s_3
+I0801 02:22:48.787883  2097 net.cpp:406] pool_s_3 <- conv_s_3
+I0801 02:22:48.787885  2097 net.cpp:380] pool_s_3 -> pool_s_3
+I0801 02:22:48.787997  2097 net.cpp:122] Setting up pool_s_3
+I0801 02:22:48.788002  2097 net.cpp:129] Top shape: 100 64 4 4 (102400)
+I0801 02:22:48.788004  2097 net.cpp:137] Memory required for data: 38502800
+I0801 02:22:48.788005  2097 layer_factory.hpp:77] Creating layer ip_s_1
+I0801 02:22:48.788009  2097 net.cpp:84] Creating Layer ip_s_1
+I0801 02:22:48.788012  2097 net.cpp:406] ip_s_1 <- pool_s_3
+I0801 02:22:48.788017  2097 net.cpp:380] ip_s_1 -> ip_s_1
+I0801 02:22:48.788616  2097 net.cpp:122] Setting up ip_s_1
+I0801 02:22:48.788625  2097 net.cpp:129] Top shape: 100 10 (1000)
+I0801 02:22:48.788626  2097 net.cpp:137] Memory required for data: 38506800
+I0801 02:22:48.788631  2097 layer_factory.hpp:77] Creating layer ip_s_1_ip_s_1_0_split
+I0801 02:22:48.788636  2097 net.cpp:84] Creating Layer ip_s_1_ip_s_1_0_split
+I0801 02:22:48.788638  2097 net.cpp:406] ip_s_1_ip_s_1_0_split <- ip_s_1
+I0801 02:22:48.788641  2097 net.cpp:380] ip_s_1_ip_s_1_0_split -> ip_s_1_ip_s_1_0_split_0
+I0801 02:22:48.788646  2097 net.cpp:380] ip_s_1_ip_s_1_0_split -> ip_s_1_ip_s_1_0_split_1
+I0801 02:22:48.788671  2097 net.cpp:122] Setting up ip_s_1_ip_s_1_0_split
+I0801 02:22:48.788673  2097 net.cpp:129] Top shape: 100 10 (1000)
+I0801 02:22:48.788676  2097 net.cpp:129] Top shape: 100 10 (1000)
+I0801 02:22:48.788677  2097 net.cpp:137] Memory required for data: 38514800
+I0801 02:22:48.788679  2097 layer_factory.hpp:77] Creating layer conv_t_1
+I0801 02:22:48.788684  2097 net.cpp:84] Creating Layer conv_t_1
+I0801 02:22:48.788687  2097 net.cpp:406] conv_t_1 <- data_cifar_0_split_1
+I0801 02:22:48.788691  2097 net.cpp:380] conv_t_1 -> conv_t_1
+I0801 02:22:48.789397  2097 net.cpp:122] Setting up conv_t_1
+I0801 02:22:48.789404  2097 net.cpp:129] Top shape: 100 32 32 32 (3276800)
+I0801 02:22:48.789407  2097 net.cpp:137] Memory required for data: 51622000
+I0801 02:22:48.789413  2097 layer_factory.hpp:77] Creating layer pool_t_1
+I0801 02:22:48.789419  2097 net.cpp:84] Creating Layer pool_t_1
+I0801 02:22:48.789422  2097 net.cpp:406] pool_t_1 <- conv_t_1
+I0801 02:22:48.789425  2097 net.cpp:380] pool_t_1 -> pool_t_1
+I0801 02:22:48.789451  2097 net.cpp:122] Setting up pool_t_1
+I0801 02:22:48.789455  2097 net.cpp:129] Top shape: 100 32 16 16 (819200)
+I0801 02:22:48.789458  2097 net.cpp:137] Memory required for data: 54898800
+I0801 02:22:48.789458  2097 layer_factory.hpp:77] Creating layer relu_t_1
+I0801 02:22:48.789461  2097 net.cpp:84] Creating Layer relu_t_1
+I0801 02:22:48.789464  2097 net.cpp:406] relu_t_1 <- pool_t_1
+I0801 02:22:48.789468  2097 net.cpp:367] relu_t_1 -> pool_t_1 (in-place)
+I0801 02:22:48.789765  2097 net.cpp:122] Setting up relu_t_1
+I0801 02:22:48.789772  2097 net.cpp:129] Top shape: 100 32 16 16 (819200)
+I0801 02:22:48.789774  2097 net.cpp:137] Memory required for data: 58175600
+I0801 02:22:48.789777  2097 layer_factory.hpp:77] Creating layer norm_t_1
+I0801 02:22:48.789780  2097 net.cpp:84] Creating Layer norm_t_1
+I0801 02:22:48.789783  2097 net.cpp:406] norm_t_1 <- pool_t_1
+I0801 02:22:48.789786  2097 net.cpp:380] norm_t_1 -> norm_t_1
+I0801 02:22:48.790300  2097 net.cpp:122] Setting up norm_t_1
+I0801 02:22:48.790307  2097 net.cpp:129] Top shape: 100 32 16 16 (819200)
+I0801 02:22:48.790309  2097 net.cpp:137] Memory required for data: 61452400
+I0801 02:22:48.790310  2097 layer_factory.hpp:77] Creating layer conv_t_2
+I0801 02:22:48.790328  2097 net.cpp:84] Creating Layer conv_t_2
+I0801 02:22:48.790330  2097 net.cpp:406] conv_t_2 <- norm_t_1
+I0801 02:22:48.790335  2097 net.cpp:380] conv_t_2 -> conv_t_2
+I0801 02:22:48.791169  2097 net.cpp:122] Setting up conv_t_2
+I0801 02:22:48.791177  2097 net.cpp:129] Top shape: 100 32 16 16 (819200)
+I0801 02:22:48.791178  2097 net.cpp:137] Memory required for data: 64729200
+I0801 02:22:48.791182  2097 layer_factory.hpp:77] Creating layer relu_t_2
+I0801 02:22:48.791185  2097 net.cpp:84] Creating Layer relu_t_2
+I0801 02:22:48.791188  2097 net.cpp:406] relu_t_2 <- conv_t_2
+I0801 02:22:48.791190  2097 net.cpp:367] relu_t_2 -> conv_t_2 (in-place)
+I0801 02:22:48.791299  2097 net.cpp:122] Setting up relu_t_2
+I0801 02:22:48.791304  2097 net.cpp:129] Top shape: 100 32 16 16 (819200)
+I0801 02:22:48.791306  2097 net.cpp:137] Memory required for data: 68006000
+I0801 02:22:48.791307  2097 layer_factory.hpp:77] Creating layer pool_t_2
+I0801 02:22:48.791311  2097 net.cpp:84] Creating Layer pool_t_2
+I0801 02:22:48.791312  2097 net.cpp:406] pool_t_2 <- conv_t_2
+I0801 02:22:48.791316  2097 net.cpp:380] pool_t_2 -> pool_t_2
+I0801 02:22:48.791613  2097 net.cpp:122] Setting up pool_t_2
+I0801 02:22:48.791621  2097 net.cpp:129] Top shape: 100 32 8 8 (204800)
+I0801 02:22:48.791622  2097 net.cpp:137] Memory required for data: 68825200
+I0801 02:22:48.791625  2097 layer_factory.hpp:77] Creating layer norm_t_2
+I0801 02:22:48.791628  2097 net.cpp:84] Creating Layer norm_t_2
+I0801 02:22:48.791631  2097 net.cpp:406] norm_t_2 <- pool_t_2
+I0801 02:22:48.791635  2097 net.cpp:380] norm_t_2 -> norm_t_2
+I0801 02:22:48.791808  2097 net.cpp:122] Setting up norm_t_2
+I0801 02:22:48.791813  2097 net.cpp:129] Top shape: 100 32 8 8 (204800)
+I0801 02:22:48.791815  2097 net.cpp:137] Memory required for data: 69644400
+I0801 02:22:48.791817  2097 layer_factory.hpp:77] Creating layer conv_t_3
+I0801 02:22:48.791823  2097 net.cpp:84] Creating Layer conv_t_3
+I0801 02:22:48.791826  2097 net.cpp:406] conv_t_3 <- norm_t_2
+I0801 02:22:48.791829  2097 net.cpp:380] conv_t_3 -> conv_t_3
+I0801 02:22:48.792798  2097 net.cpp:122] Setting up conv_t_3
+I0801 02:22:48.792805  2097 net.cpp:129] Top shape: 100 64 8 8 (409600)
+I0801 02:22:48.792807  2097 net.cpp:137] Memory required for data: 71282800
+I0801 02:22:48.792811  2097 layer_factory.hpp:77] Creating layer relu_t_3
+I0801 02:22:48.792829  2097 net.cpp:84] Creating Layer relu_t_3
+I0801 02:22:48.792839  2097 net.cpp:406] relu_t_3 <- conv_t_3
+I0801 02:22:48.792847  2097 net.cpp:367] relu_t_3 -> conv_t_3 (in-place)
+I0801 02:22:48.792970  2097 net.cpp:122] Setting up relu_t_3
+I0801 02:22:48.792982  2097 net.cpp:129] Top shape: 100 64 8 8 (409600)
+I0801 02:22:48.792989  2097 net.cpp:137] Memory required for data: 72921200
+I0801 02:22:48.792995  2097 layer_factory.hpp:77] Creating layer pool_t_3
+I0801 02:22:48.793004  2097 net.cpp:84] Creating Layer pool_t_3
+I0801 02:22:48.793011  2097 net.cpp:406] pool_t_3 <- conv_t_3
+I0801 02:22:48.793020  2097 net.cpp:380] pool_t_3 -> pool_t_3
+I0801 02:22:48.793339  2097 net.cpp:122] Setting up pool_t_3
+I0801 02:22:48.793355  2097 net.cpp:129] Top shape: 100 64 4 4 (102400)
+I0801 02:22:48.793362  2097 net.cpp:137] Memory required for data: 73330800
+I0801 02:22:48.793370  2097 layer_factory.hpp:77] Creating layer ip_t_1
+I0801 02:22:48.793380  2097 net.cpp:84] Creating Layer ip_t_1
+I0801 02:22:48.793387  2097 net.cpp:406] ip_t_1 <- pool_t_3
+I0801 02:22:48.793395  2097 net.cpp:380] ip_t_1 -> ip_t_1
+I0801 02:22:48.793530  2097 net.cpp:122] Setting up ip_t_1
+I0801 02:22:48.793541  2097 net.cpp:129] Top shape: 100 10 (1000)
+I0801 02:22:48.793548  2097 net.cpp:137] Memory required for data: 73334800
+I0801 02:22:48.793557  2097 layer_factory.hpp:77] Creating layer sm_s_1
+I0801 02:22:48.793565  2097 net.cpp:84] Creating Layer sm_s_1
+I0801 02:22:48.793572  2097 net.cpp:406] sm_s_1 <- ip_s_1_ip_s_1_0_split_0
+I0801 02:22:48.793581  2097 net.cpp:380] sm_s_1 -> sm_s_1
+I0801 02:22:48.793743  2097 net.cpp:122] Setting up sm_s_1
+I0801 02:22:48.793761  2097 net.cpp:129] Top shape: 100 10 (1000)
+I0801 02:22:48.793772  2097 net.cpp:137] Memory required for data: 73338800
+I0801 02:22:48.793781  2097 layer_factory.hpp:77] Creating layer sm_t_1
+I0801 02:22:48.793788  2097 net.cpp:84] Creating Layer sm_t_1
+I0801 02:22:48.793795  2097 net.cpp:406] sm_t_1 <- ip_t_1
+I0801 02:22:48.793803  2097 net.cpp:380] sm_t_1 -> sm_t_1
+I0801 02:22:48.793954  2097 net.cpp:122] Setting up sm_t_1
+I0801 02:22:48.793967  2097 net.cpp:129] Top shape: 100 10 (1000)
+I0801 02:22:48.793972  2097 net.cpp:137] Memory required for data: 73342800
+I0801 02:22:48.793979  2097 layer_factory.hpp:77] Creating layer ts_loss
+I0801 02:22:48.793988  2097 net.cpp:84] Creating Layer ts_loss
+I0801 02:22:48.793995  2097 net.cpp:406] ts_loss <- sm_s_1
+I0801 02:22:48.794003  2097 net.cpp:406] ts_loss <- sm_t_1
+I0801 02:22:48.794010  2097 net.cpp:380] ts_loss -> ts_loss
+I0801 02:22:48.794052  2097 net.cpp:122] Setting up ts_loss
+I0801 02:22:48.794062  2097 net.cpp:129] Top shape: (1)
+I0801 02:22:48.794068  2097 net.cpp:132]     with loss weight 0.3
+I0801 02:22:48.794092  2097 net.cpp:137] Memory required for data: 73342804
+I0801 02:22:48.794098  2097 layer_factory.hpp:77] Creating layer loss
+I0801 02:22:48.794106  2097 net.cpp:84] Creating Layer loss
+I0801 02:22:48.794113  2097 net.cpp:406] loss <- ip_s_1_ip_s_1_0_split_1
+I0801 02:22:48.794121  2097 net.cpp:406] loss <- label
+I0801 02:22:48.794131  2097 net.cpp:380] loss -> loss
+I0801 02:22:48.794140  2097 layer_factory.hpp:77] Creating layer loss
+I0801 02:22:48.794315  2097 net.cpp:122] Setting up loss
+I0801 02:22:48.794327  2097 net.cpp:129] Top shape: (1)
+I0801 02:22:48.794335  2097 net.cpp:132]     with loss weight 0.7
+I0801 02:22:48.794343  2097 net.cpp:137] Memory required for data: 73342808
+I0801 02:22:48.794350  2097 net.cpp:198] loss needs backward computation.
+I0801 02:22:48.794361  2097 net.cpp:198] ts_loss needs backward computation.
+I0801 02:22:48.794369  2097 net.cpp:200] sm_t_1 does not need backward computation.
+I0801 02:22:48.794376  2097 net.cpp:198] sm_s_1 needs backward computation.
+I0801 02:22:48.794384  2097 net.cpp:200] ip_t_1 does not need backward computation.
+I0801 02:22:48.794390  2097 net.cpp:200] pool_t_3 does not need backward computation.
+I0801 02:22:48.794397  2097 net.cpp:200] relu_t_3 does not need backward computation.
+I0801 02:22:48.794404  2097 net.cpp:200] conv_t_3 does not need backward computation.
+I0801 02:22:48.794412  2097 net.cpp:200] norm_t_2 does not need backward computation.
+I0801 02:22:48.794420  2097 net.cpp:200] pool_t_2 does not need backward computation.
+I0801 02:22:48.794427  2097 net.cpp:200] relu_t_2 does not need backward computation.
+I0801 02:22:48.794435  2097 net.cpp:200] conv_t_2 does not need backward computation.
+I0801 02:22:48.794441  2097 net.cpp:200] norm_t_1 does not need backward computation.
+I0801 02:22:48.794448  2097 net.cpp:200] relu_t_1 does not need backward computation.
+I0801 02:22:48.794456  2097 net.cpp:200] pool_t_1 does not need backward computation.
+I0801 02:22:48.794462  2097 net.cpp:200] conv_t_1 does not need backward computation.
+I0801 02:22:48.794471  2097 net.cpp:198] ip_s_1_ip_s_1_0_split needs backward computation.
+I0801 02:22:48.794477  2097 net.cpp:198] ip_s_1 needs backward computation.
+I0801 02:22:48.794486  2097 net.cpp:198] pool_s_3 needs backward computation.
+I0801 02:22:48.794492  2097 net.cpp:198] relu_s_3 needs backward computation.
+I0801 02:22:48.794499  2097 net.cpp:198] conv_s_3 needs backward computation.
+I0801 02:22:48.794505  2097 net.cpp:198] norm_s_2 needs backward computation.
+I0801 02:22:48.794512  2097 net.cpp:198] pool_s_2 needs backward computation.
+I0801 02:22:48.794519  2097 net.cpp:198] relu_s_2 needs backward computation.
+I0801 02:22:48.794526  2097 net.cpp:198] conv_s_2 needs backward computation.
+I0801 02:22:48.794533  2097 net.cpp:198] norm_s_1 needs backward computation.
+I0801 02:22:48.794541  2097 net.cpp:198] relu_s_1 needs backward computation.
+I0801 02:22:48.794548  2097 net.cpp:198] pool_s_1 needs backward computation.
+I0801 02:22:48.794558  2097 net.cpp:198] conv_s_1 needs backward computation.
+I0801 02:22:48.794569  2097 net.cpp:200] data_cifar_0_split does not need backward computation.
+I0801 02:22:48.794579  2097 net.cpp:200] cifar does not need backward computation.
+I0801 02:22:48.794584  2097 net.cpp:242] This network produces output loss
+I0801 02:22:48.794592  2097 net.cpp:242] This network produces output ts_loss
+I0801 02:22:48.794610  2097 net.cpp:255] Network initialization done.
+I0801 02:22:48.794806  2097 solver.cpp:172] Creating test net (#0) specified by net file: ts_cifar10.prototxt
+I0801 02:22:48.794836  2097 net.cpp:294] The NetState phase (1) differed from the phase (0) specified by a rule in layer cifar
+I0801 02:22:48.794948  2097 net.cpp:51] Initializing net from parameters: 
+name: "CIFAR10_full"
+state {
+  phase: TEST
+}
+layer {
+  name: "cifar"
+  type: "Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TEST
+  }
+  transform_param {
+    mean_file: "/opt/caffe/examples/cifar10/mean.binaryproto"
+  }
+  data_param {
+    source: "/opt/caffe/examples/cifar10/cifar10_test_lmdb"
+    batch_size: 100
+    backend: LMDB
+  }
+}
+layer {
+  name: "conv_s_1"
+  type: "Convolution"
+  bottom: "data"
+  top: "conv_s_1"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 32
+    pad: 2
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.0001
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "pool_s_1"
+  type: "Pooling"
+  bottom: "conv_s_1"
+  top: "pool_s_1"
+  pooling_param {
+    pool: MAX
+    kernel_size: 3
+    stride: 2
+  }
+}
+layer {
+  name: "relu_s_1"
+  type: "ReLU"
+  bottom: "pool_s_1"
+  top: "pool_s_1"
+}
+layer {
+  name: "norm_s_1"
+  type: "LRN"
+  bottom: "pool_s_1"
+  top: "norm_s_1"
+  lrn_param {
+    local_size: 3
+    alpha: 5e-05
+    beta: 0.75
+    norm_region: WITHIN_CHANNEL
+  }
+}
+layer {
+  name: "conv_s_2"
+  type: "Convolution"
+  bottom: "norm_s_1"
+  top: "conv_s_2"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 32
+    pad: 2
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu_s_2"
+  type: "ReLU"
+  bottom: "conv_s_2"
+  top: "conv_s_2"
+}
+layer {
+  name: "pool_s_2"
+  type: "Pooling"
+  bottom: "conv_s_2"
+  top: "pool_s_2"
+  pooling_param {
+    pool: AVE
+    kernel_size: 3
+    stride: 2
+  }
+}
+layer {
+  name: "norm_s_2"
+  type: "LRN"
+  bottom: "pool_s_2"
+  top: "norm_s_2"
+  lrn_param {
+    local_size: 3
+    alpha: 5e-05
+    beta: 0.75
+    norm_region: WITHIN_CHANNEL
+  }
+}
+layer {
+  name: "conv_s_3"
+  type: "Convolution"
+  bottom: "norm_s_2"
+  top: "conv_s_3"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 64
+    pad: 2
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu_s_3"
+  type: "ReLU"
+  bottom: "conv_s_3"
+  top: "conv_s_3"
+}
+layer {
+  name: "pool_s_3"
+  type: "Pooling"
+  bottom: "conv_s_3"
+  top: "pool_s_3"
+  pooling_param {
+    pool: AVE
+    kernel_size: 3
+    stride: 2
+  }
+}
+layer {
+  name: "ip_s_1"
+  type: "InnerProduct"
+  bottom: "pool_s_3"
+  top: "ip_s_1"
+  param {
+    lr_mult: 1
+    decay_mult: 250
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  inner_product_param {
+    num_output: 10
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "conv_t_1"
+  type: "Convolution"
+  bottom: "data"
+  top: "conv_t_1"
+  param {
+    lr_mult: 0
+  }
+  param {
+    lr_mult: 0
+  }
+  convolution_param {
+    num_output: 32
+    pad: 2
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.0001
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "pool_t_1"
+  type: "Pooling"
+  bottom: "conv_t_1"
+  top: "pool_t_1"
+  pooling_param {
+    pool: MAX
+    kernel_size: 3
+    stride: 2
+  }
+}
+layer {
+  name: "relu_t_1"
+  type: "ReLU"
+  bottom: "pool_t_1"
+  top: "pool_t_1"
+}
+layer {
+  name: "norm_t_1"
+  type: "LRN"
+  bottom: "pool_t_1"
+  top: "norm_t_1"
+  lrn_param {
+    local_size: 3
+    alpha: 5e-05
+    beta: 0.75
+    norm_region: WITHIN_CHANNEL
+  }
+}
+layer {
+  name: "conv_t_2"
+  type: "Convolution"
+  bottom: "norm_t_1"
+  top: "conv_t_2"
+  param {
+    lr_mult: 0
+  }
+  param {
+    lr_mult: 0
+  }
+  convolution_param {
+    num_output: 32
+    pad: 2
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu_t_2"
+  type: "ReLU"
+  bottom: "conv_t_2"
+  top: "conv_t_2"
+}
+layer {
+  name: "pool_t_2"
+  type: "Pooling"
+  bottom: "conv_t_2"
+  top: "pool_t_2"
+  pooling_param {
+    pool: AVE
+    kernel_size: 3
+    stride: 2
+  }
+}
+layer {
+  name: "norm_t_2"
+  type: "LRN"
+  bottom: "pool_t_2"
+  top: "norm_t_2"
+  lrn_param {
+    local_size: 3
+    alpha: 5e-05
+    beta: 0.75
+    norm_region: WITHIN_CHANNEL
+  }
+}
+layer {
+  name: "conv_t_3"
+  type: "Convolution"
+  bottom: "norm_t_2"
+  top: "conv_t_3"
+  param {
+    lr_mult: 0
+  }
+  param {
+    lr_mult: 0
+  }
+  convolution_param {
+    num_output: 64
+    pad: 2
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu_t_3"
+  type: "ReLU"
+  bottom: "conv_t_3"
+  top: "conv_t_3"
+}
+layer {
+  name: "pool_t_3"
+  type: "Pooling"
+  bottom: "conv_t_3"
+  top: "pool_t_3"
+  pooling_param {
+    pool: AVE
+    kernel_size: 3
+    stride: 2
+  }
+}
+layer {
+  name: "ip_t_1"
+  type: "InnerProduct"
+  bottom: "pool_t_3"
+  top: "ip_t_1"
+  param {
+    lr_mult: 0
+  }
+  param {
+    lr_mult: 0
+  }
+  inner_product_param {
+    num_output: 10
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "sm_s_1"
+  type: "Softmax"
+  bottom: "ip_s_1"
+  top: "sm_s_1"
+}
+layer {
+  name: "sm_t_1"
+  type: "Softmax"
+  bottom: "ip_t_1"
+  top: "sm_t_1"
+}
+layer {
+  name: "accuracy"
+  type: "Accuracy"
+  bottom: "ip_s_1"
+  bottom: "label"
+  top: "accuracy"
+  include {
+    phase: TEST
+  }
+}
+layer {
+  name: "ts_loss"
+  type: "SigmoidCrossEntropyLoss"
+  bottom: "sm_s_1"
+  bottom: "sm_t_1"
+  top: "ts_loss"
+  loss_weight: 0.3
+}
+layer {
+  name: "loss"
+  type: "SoftmaxWithLoss"
+  bottom: "ip_s_1"
+  bottom: "label"
+  top: "loss"
+  loss_weight: 0.7
+}
+I0801 02:22:48.795205  2097 layer_factory.hpp:77] Creating layer cifar
+I0801 02:22:48.795265  2097 db_lmdb.cpp:35] Opened lmdb /opt/caffe/examples/cifar10/cifar10_test_lmdb
+I0801 02:22:48.795282  2097 net.cpp:84] Creating Layer cifar
+I0801 02:22:48.795291  2097 net.cpp:380] cifar -> data
+I0801 02:22:48.795303  2097 net.cpp:380] cifar -> label
+I0801 02:22:48.795315  2097 data_transformer.cpp:25] Loading mean file from: /opt/caffe/examples/cifar10/mean.binaryproto
+I0801 02:22:48.795433  2097 data_layer.cpp:45] output data size: 100,3,32,32
+I0801 02:22:48.799468  2097 net.cpp:122] Setting up cifar
+I0801 02:22:48.799510  2097 net.cpp:129] Top shape: 100 3 32 32 (307200)
+I0801 02:22:48.799518  2097 net.cpp:129] Top shape: 100 (100)
+I0801 02:22:48.799526  2097 net.cpp:137] Memory required for data: 1229200
+I0801 02:22:48.799536  2097 layer_factory.hpp:77] Creating layer data_cifar_0_split
+I0801 02:22:48.799551  2097 net.cpp:84] Creating Layer data_cifar_0_split
+I0801 02:22:48.799558  2097 net.cpp:406] data_cifar_0_split <- data
+I0801 02:22:48.799571  2097 net.cpp:380] data_cifar_0_split -> data_cifar_0_split_0
+I0801 02:22:48.799582  2097 net.cpp:380] data_cifar_0_split -> data_cifar_0_split_1
+I0801 02:22:48.799630  2097 net.cpp:122] Setting up data_cifar_0_split
+I0801 02:22:48.799641  2097 net.cpp:129] Top shape: 100 3 32 32 (307200)
+I0801 02:22:48.799649  2097 net.cpp:129] Top shape: 100 3 32 32 (307200)
+I0801 02:22:48.799655  2097 net.cpp:137] Memory required for data: 3686800
+I0801 02:22:48.799662  2097 layer_factory.hpp:77] Creating layer label_cifar_1_split
+I0801 02:22:48.799679  2097 net.cpp:84] Creating Layer label_cifar_1_split
+I0801 02:22:48.799693  2097 net.cpp:406] label_cifar_1_split <- label
+I0801 02:22:48.799702  2097 net.cpp:380] label_cifar_1_split -> label_cifar_1_split_0
+I0801 02:22:48.799712  2097 net.cpp:380] label_cifar_1_split -> label_cifar_1_split_1
+I0801 02:22:48.799748  2097 net.cpp:122] Setting up label_cifar_1_split
+I0801 02:22:48.799758  2097 net.cpp:129] Top shape: 100 (100)
+I0801 02:22:48.799767  2097 net.cpp:129] Top shape: 100 (100)
+I0801 02:22:48.799772  2097 net.cpp:137] Memory required for data: 3687600
+I0801 02:22:48.799779  2097 layer_factory.hpp:77] Creating layer conv_s_1
+I0801 02:22:48.799793  2097 net.cpp:84] Creating Layer conv_s_1
+I0801 02:22:48.799800  2097 net.cpp:406] conv_s_1 <- data_cifar_0_split_0
+I0801 02:22:48.799809  2097 net.cpp:380] conv_s_1 -> conv_s_1
+I0801 02:22:48.801106  2097 net.cpp:122] Setting up conv_s_1
+I0801 02:22:48.801129  2097 net.cpp:129] Top shape: 100 32 32 32 (3276800)
+I0801 02:22:48.801138  2097 net.cpp:137] Memory required for data: 16794800
+I0801 02:22:48.801151  2097 layer_factory.hpp:77] Creating layer pool_s_1
+I0801 02:22:48.801162  2097 net.cpp:84] Creating Layer pool_s_1
+I0801 02:22:48.801169  2097 net.cpp:406] pool_s_1 <- conv_s_1
+I0801 02:22:48.801178  2097 net.cpp:380] pool_s_1 -> pool_s_1
+I0801 02:22:48.801214  2097 net.cpp:122] Setting up pool_s_1
+I0801 02:22:48.801224  2097 net.cpp:129] Top shape: 100 32 16 16 (819200)
+I0801 02:22:48.801231  2097 net.cpp:137] Memory required for data: 20071600
+I0801 02:22:48.801239  2097 layer_factory.hpp:77] Creating layer relu_s_1
+I0801 02:22:48.801246  2097 net.cpp:84] Creating Layer relu_s_1
+I0801 02:22:48.801254  2097 net.cpp:406] relu_s_1 <- pool_s_1
+I0801 02:22:48.801262  2097 net.cpp:367] relu_s_1 -> pool_s_1 (in-place)
+I0801 02:22:48.801398  2097 net.cpp:122] Setting up relu_s_1
+I0801 02:22:48.801409  2097 net.cpp:129] Top shape: 100 32 16 16 (819200)
+I0801 02:22:48.801416  2097 net.cpp:137] Memory required for data: 23348400
+I0801 02:22:48.801424  2097 layer_factory.hpp:77] Creating layer norm_s_1
+I0801 02:22:48.801434  2097 net.cpp:84] Creating Layer norm_s_1
+I0801 02:22:48.801440  2097 net.cpp:406] norm_s_1 <- pool_s_1
+I0801 02:22:48.801448  2097 net.cpp:380] norm_s_1 -> norm_s_1
+I0801 02:22:48.802176  2097 net.cpp:122] Setting up norm_s_1
+I0801 02:22:48.802196  2097 net.cpp:129] Top shape: 100 32 16 16 (819200)
+I0801 02:22:48.802204  2097 net.cpp:137] Memory required for data: 26625200
+I0801 02:22:48.802212  2097 layer_factory.hpp:77] Creating layer conv_s_2
+I0801 02:22:48.802224  2097 net.cpp:84] Creating Layer conv_s_2
+I0801 02:22:48.802232  2097 net.cpp:406] conv_s_2 <- norm_s_1
+I0801 02:22:48.802242  2097 net.cpp:380] conv_s_2 -> conv_s_2
+I0801 02:22:48.803167  2097 net.cpp:122] Setting up conv_s_2
+I0801 02:22:48.803184  2097 net.cpp:129] Top shape: 100 32 16 16 (819200)
+I0801 02:22:48.803192  2097 net.cpp:137] Memory required for data: 29902000
+I0801 02:22:48.803203  2097 layer_factory.hpp:77] Creating layer relu_s_2
+I0801 02:22:48.803213  2097 net.cpp:84] Creating Layer relu_s_2
+I0801 02:22:48.803220  2097 net.cpp:406] relu_s_2 <- conv_s_2
+I0801 02:22:48.803228  2097 net.cpp:367] relu_s_2 -> conv_s_2 (in-place)
+I0801 02:22:48.803349  2097 net.cpp:122] Setting up relu_s_2
+I0801 02:22:48.803360  2097 net.cpp:129] Top shape: 100 32 16 16 (819200)
+I0801 02:22:48.803367  2097 net.cpp:137] Memory required for data: 33178800
+I0801 02:22:48.803375  2097 layer_factory.hpp:77] Creating layer pool_s_2
+I0801 02:22:48.803382  2097 net.cpp:84] Creating Layer pool_s_2
+I0801 02:22:48.803390  2097 net.cpp:406] pool_s_2 <- conv_s_2
+I0801 02:22:48.803398  2097 net.cpp:380] pool_s_2 -> pool_s_2
+I0801 02:22:48.803719  2097 net.cpp:122] Setting up pool_s_2
+I0801 02:22:48.803735  2097 net.cpp:129] Top shape: 100 32 8 8 (204800)
+I0801 02:22:48.803742  2097 net.cpp:137] Memory required for data: 33998000
+I0801 02:22:48.803750  2097 layer_factory.hpp:77] Creating layer norm_s_2
+I0801 02:22:48.803757  2097 net.cpp:84] Creating Layer norm_s_2
+I0801 02:22:48.803764  2097 net.cpp:406] norm_s_2 <- pool_s_2
+I0801 02:22:48.803787  2097 net.cpp:380] norm_s_2 -> norm_s_2
+I0801 02:22:48.803974  2097 net.cpp:122] Setting up norm_s_2
+I0801 02:22:48.803987  2097 net.cpp:129] Top shape: 100 32 8 8 (204800)
+I0801 02:22:48.803994  2097 net.cpp:137] Memory required for data: 34817200
+I0801 02:22:48.804002  2097 layer_factory.hpp:77] Creating layer conv_s_3
+I0801 02:22:48.804011  2097 net.cpp:84] Creating Layer conv_s_3
+I0801 02:22:48.804019  2097 net.cpp:406] conv_s_3 <- norm_s_2
+I0801 02:22:48.804028  2097 net.cpp:380] conv_s_3 -> conv_s_3
+I0801 02:22:48.805022  2097 net.cpp:122] Setting up conv_s_3
+I0801 02:22:48.805038  2097 net.cpp:129] Top shape: 100 64 8 8 (409600)
+I0801 02:22:48.805047  2097 net.cpp:137] Memory required for data: 36455600
+I0801 02:22:48.805057  2097 layer_factory.hpp:77] Creating layer relu_s_3
+I0801 02:22:48.805066  2097 net.cpp:84] Creating Layer relu_s_3
+I0801 02:22:48.805073  2097 net.cpp:406] relu_s_3 <- conv_s_3
+I0801 02:22:48.805081  2097 net.cpp:367] relu_s_3 -> conv_s_3 (in-place)
+I0801 02:22:48.805217  2097 net.cpp:122] Setting up relu_s_3
+I0801 02:22:48.805229  2097 net.cpp:129] Top shape: 100 64 8 8 (409600)
+I0801 02:22:48.805236  2097 net.cpp:137] Memory required for data: 38094000
+I0801 02:22:48.805243  2097 layer_factory.hpp:77] Creating layer pool_s_3
+I0801 02:22:48.805251  2097 net.cpp:84] Creating Layer pool_s_3
+I0801 02:22:48.805258  2097 net.cpp:406] pool_s_3 <- conv_s_3
+I0801 02:22:48.805266  2097 net.cpp:380] pool_s_3 -> pool_s_3
+I0801 02:22:48.805594  2097 net.cpp:122] Setting up pool_s_3
+I0801 02:22:48.805609  2097 net.cpp:129] Top shape: 100 64 4 4 (102400)
+I0801 02:22:48.805616  2097 net.cpp:137] Memory required for data: 38503600
+I0801 02:22:48.805624  2097 layer_factory.hpp:77] Creating layer ip_s_1
+I0801 02:22:48.805634  2097 net.cpp:84] Creating Layer ip_s_1
+I0801 02:22:48.805640  2097 net.cpp:406] ip_s_1 <- pool_s_3
+I0801 02:22:48.805649  2097 net.cpp:380] ip_s_1 -> ip_s_1
+I0801 02:22:48.805789  2097 net.cpp:122] Setting up ip_s_1
+I0801 02:22:48.805799  2097 net.cpp:129] Top shape: 100 10 (1000)
+I0801 02:22:48.805805  2097 net.cpp:137] Memory required for data: 38507600
+I0801 02:22:48.805814  2097 layer_factory.hpp:77] Creating layer ip_s_1_ip_s_1_0_split
+I0801 02:22:48.805824  2097 net.cpp:84] Creating Layer ip_s_1_ip_s_1_0_split
+I0801 02:22:48.805830  2097 net.cpp:406] ip_s_1_ip_s_1_0_split <- ip_s_1
+I0801 02:22:48.805838  2097 net.cpp:380] ip_s_1_ip_s_1_0_split -> ip_s_1_ip_s_1_0_split_0
+I0801 02:22:48.805847  2097 net.cpp:380] ip_s_1_ip_s_1_0_split -> ip_s_1_ip_s_1_0_split_1
+I0801 02:22:48.805858  2097 net.cpp:380] ip_s_1_ip_s_1_0_split -> ip_s_1_ip_s_1_0_split_2
+I0801 02:22:48.805899  2097 net.cpp:122] Setting up ip_s_1_ip_s_1_0_split
+I0801 02:22:48.805909  2097 net.cpp:129] Top shape: 100 10 (1000)
+I0801 02:22:48.805917  2097 net.cpp:129] Top shape: 100 10 (1000)
+I0801 02:22:48.805924  2097 net.cpp:129] Top shape: 100 10 (1000)
+I0801 02:22:48.805932  2097 net.cpp:137] Memory required for data: 38519600
+I0801 02:22:48.805938  2097 layer_factory.hpp:77] Creating layer conv_t_1
+I0801 02:22:48.805950  2097 net.cpp:84] Creating Layer conv_t_1
+I0801 02:22:48.805958  2097 net.cpp:406] conv_t_1 <- data_cifar_0_split_1
+I0801 02:22:48.805966  2097 net.cpp:380] conv_t_1 -> conv_t_1
+I0801 02:22:48.806690  2097 net.cpp:122] Setting up conv_t_1
+I0801 02:22:48.806707  2097 net.cpp:129] Top shape: 100 32 32 32 (3276800)
+I0801 02:22:48.806715  2097 net.cpp:137] Memory required for data: 51626800
+I0801 02:22:48.806726  2097 layer_factory.hpp:77] Creating layer pool_t_1
+I0801 02:22:48.806735  2097 net.cpp:84] Creating Layer pool_t_1
+I0801 02:22:48.806743  2097 net.cpp:406] pool_t_1 <- conv_t_1
+I0801 02:22:48.806751  2097 net.cpp:380] pool_t_1 -> pool_t_1
+I0801 02:22:48.806784  2097 net.cpp:122] Setting up pool_t_1
+I0801 02:22:48.806794  2097 net.cpp:129] Top shape: 100 32 16 16 (819200)
+I0801 02:22:48.806802  2097 net.cpp:137] Memory required for data: 54903600
+I0801 02:22:48.806808  2097 layer_factory.hpp:77] Creating layer relu_t_1
+I0801 02:22:48.806815  2097 net.cpp:84] Creating Layer relu_t_1
+I0801 02:22:48.806831  2097 net.cpp:406] relu_t_1 <- pool_t_1
+I0801 02:22:48.806840  2097 net.cpp:367] relu_t_1 -> pool_t_1 (in-place)
+I0801 02:22:48.806962  2097 net.cpp:122] Setting up relu_t_1
+I0801 02:22:48.806972  2097 net.cpp:129] Top shape: 100 32 16 16 (819200)
+I0801 02:22:48.806979  2097 net.cpp:137] Memory required for data: 58180400
+I0801 02:22:48.806987  2097 layer_factory.hpp:77] Creating layer norm_t_1
+I0801 02:22:48.806995  2097 net.cpp:84] Creating Layer norm_t_1
+I0801 02:22:48.807003  2097 net.cpp:406] norm_t_1 <- pool_t_1
+I0801 02:22:48.807010  2097 net.cpp:380] norm_t_1 -> norm_t_1
+I0801 02:22:48.808001  2097 net.cpp:122] Setting up norm_t_1
+I0801 02:22:48.808020  2097 net.cpp:129] Top shape: 100 32 16 16 (819200)
+I0801 02:22:48.808027  2097 net.cpp:137] Memory required for data: 61457200
+I0801 02:22:48.808034  2097 layer_factory.hpp:77] Creating layer conv_t_2
+I0801 02:22:48.808045  2097 net.cpp:84] Creating Layer conv_t_2
+I0801 02:22:48.808053  2097 net.cpp:406] conv_t_2 <- norm_t_1
+I0801 02:22:48.808063  2097 net.cpp:380] conv_t_2 -> conv_t_2
+I0801 02:22:48.809176  2097 net.cpp:122] Setting up conv_t_2
+I0801 02:22:48.809197  2097 net.cpp:129] Top shape: 100 32 16 16 (819200)
+I0801 02:22:48.809204  2097 net.cpp:137] Memory required for data: 64734000
+I0801 02:22:48.809213  2097 layer_factory.hpp:77] Creating layer relu_t_2
+I0801 02:22:48.809223  2097 net.cpp:84] Creating Layer relu_t_2
+I0801 02:22:48.809231  2097 net.cpp:406] relu_t_2 <- conv_t_2
+I0801 02:22:48.809239  2097 net.cpp:367] relu_t_2 -> conv_t_2 (in-place)
+I0801 02:22:48.809552  2097 net.cpp:122] Setting up relu_t_2
+I0801 02:22:48.809567  2097 net.cpp:129] Top shape: 100 32 16 16 (819200)
+I0801 02:22:48.809574  2097 net.cpp:137] Memory required for data: 68010800
+I0801 02:22:48.809581  2097 layer_factory.hpp:77] Creating layer pool_t_2
+I0801 02:22:48.809589  2097 net.cpp:84] Creating Layer pool_t_2
+I0801 02:22:48.809597  2097 net.cpp:406] pool_t_2 <- conv_t_2
+I0801 02:22:48.809604  2097 net.cpp:380] pool_t_2 -> pool_t_2
+I0801 02:22:48.809731  2097 net.cpp:122] Setting up pool_t_2
+I0801 02:22:48.809743  2097 net.cpp:129] Top shape: 100 32 8 8 (204800)
+I0801 02:22:48.809751  2097 net.cpp:137] Memory required for data: 68830000
+I0801 02:22:48.809756  2097 layer_factory.hpp:77] Creating layer norm_t_2
+I0801 02:22:48.809764  2097 net.cpp:84] Creating Layer norm_t_2
+I0801 02:22:48.809772  2097 net.cpp:406] norm_t_2 <- pool_t_2
+I0801 02:22:48.809780  2097 net.cpp:380] norm_t_2 -> norm_t_2
+I0801 02:22:48.809962  2097 net.cpp:122] Setting up norm_t_2
+I0801 02:22:48.809975  2097 net.cpp:129] Top shape: 100 32 8 8 (204800)
+I0801 02:22:48.809983  2097 net.cpp:137] Memory required for data: 69649200
+I0801 02:22:48.809989  2097 layer_factory.hpp:77] Creating layer conv_t_3
+I0801 02:22:48.810000  2097 net.cpp:84] Creating Layer conv_t_3
+I0801 02:22:48.810008  2097 net.cpp:406] conv_t_3 <- norm_t_2
+I0801 02:22:48.810016  2097 net.cpp:380] conv_t_3 -> conv_t_3
+I0801 02:22:48.811046  2097 net.cpp:122] Setting up conv_t_3
+I0801 02:22:48.811069  2097 net.cpp:129] Top shape: 100 64 8 8 (409600)
+I0801 02:22:48.811077  2097 net.cpp:137] Memory required for data: 71287600
+I0801 02:22:48.811086  2097 layer_factory.hpp:77] Creating layer relu_t_3
+I0801 02:22:48.811095  2097 net.cpp:84] Creating Layer relu_t_3
+I0801 02:22:48.811103  2097 net.cpp:406] relu_t_3 <- conv_t_3
+I0801 02:22:48.811111  2097 net.cpp:367] relu_t_3 -> conv_t_3 (in-place)
+I0801 02:22:48.811230  2097 net.cpp:122] Setting up relu_t_3
+I0801 02:22:48.811242  2097 net.cpp:129] Top shape: 100 64 8 8 (409600)
+I0801 02:22:48.811249  2097 net.cpp:137] Memory required for data: 72926000
+I0801 02:22:48.811256  2097 layer_factory.hpp:77] Creating layer pool_t_3
+I0801 02:22:48.811264  2097 net.cpp:84] Creating Layer pool_t_3
+I0801 02:22:48.811272  2097 net.cpp:406] pool_t_3 <- conv_t_3
+I0801 02:22:48.811280  2097 net.cpp:380] pool_t_3 -> pool_t_3
+I0801 02:22:48.811619  2097 net.cpp:122] Setting up pool_t_3
+I0801 02:22:48.811635  2097 net.cpp:129] Top shape: 100 64 4 4 (102400)
+I0801 02:22:48.811648  2097 net.cpp:137] Memory required for data: 73335600
+I0801 02:22:48.811662  2097 layer_factory.hpp:77] Creating layer ip_t_1
+I0801 02:22:48.811672  2097 net.cpp:84] Creating Layer ip_t_1
+I0801 02:22:48.811679  2097 net.cpp:406] ip_t_1 <- pool_t_3
+I0801 02:22:48.811688  2097 net.cpp:380] ip_t_1 -> ip_t_1
+I0801 02:22:48.811836  2097 net.cpp:122] Setting up ip_t_1
+I0801 02:22:48.811846  2097 net.cpp:129] Top shape: 100 10 (1000)
+I0801 02:22:48.811852  2097 net.cpp:137] Memory required for data: 73339600
+I0801 02:22:48.811861  2097 layer_factory.hpp:77] Creating layer sm_s_1
+I0801 02:22:48.811870  2097 net.cpp:84] Creating Layer sm_s_1
+I0801 02:22:48.811877  2097 net.cpp:406] sm_s_1 <- ip_s_1_ip_s_1_0_split_0
+I0801 02:22:48.811885  2097 net.cpp:380] sm_s_1 -> sm_s_1
+I0801 02:22:48.812388  2097 net.cpp:122] Setting up sm_s_1
+I0801 02:22:48.812402  2097 net.cpp:129] Top shape: 100 10 (1000)
+I0801 02:22:48.812409  2097 net.cpp:137] Memory required for data: 73343600
+I0801 02:22:48.812417  2097 layer_factory.hpp:77] Creating layer sm_t_1
+I0801 02:22:48.812425  2097 net.cpp:84] Creating Layer sm_t_1
+I0801 02:22:48.812433  2097 net.cpp:406] sm_t_1 <- ip_t_1
+I0801 02:22:48.812441  2097 net.cpp:380] sm_t_1 -> sm_t_1
+I0801 02:22:48.812597  2097 net.cpp:122] Setting up sm_t_1
+I0801 02:22:48.812609  2097 net.cpp:129] Top shape: 100 10 (1000)
+I0801 02:22:48.812616  2097 net.cpp:137] Memory required for data: 73347600
+I0801 02:22:48.812623  2097 layer_factory.hpp:77] Creating layer accuracy
+I0801 02:22:48.812633  2097 net.cpp:84] Creating Layer accuracy
+I0801 02:22:48.812639  2097 net.cpp:406] accuracy <- ip_s_1_ip_s_1_0_split_1
+I0801 02:22:48.812647  2097 net.cpp:406] accuracy <- label_cifar_1_split_0
+I0801 02:22:48.812656  2097 net.cpp:380] accuracy -> accuracy
+I0801 02:22:48.812666  2097 net.cpp:122] Setting up accuracy
+I0801 02:22:48.812674  2097 net.cpp:129] Top shape: (1)
+I0801 02:22:48.812681  2097 net.cpp:137] Memory required for data: 73347604
+I0801 02:22:48.812688  2097 layer_factory.hpp:77] Creating layer ts_loss
+I0801 02:22:48.812696  2097 net.cpp:84] Creating Layer ts_loss
+I0801 02:22:48.812703  2097 net.cpp:406] ts_loss <- sm_s_1
+I0801 02:22:48.812711  2097 net.cpp:406] ts_loss <- sm_t_1
+I0801 02:22:48.812719  2097 net.cpp:380] ts_loss -> ts_loss
+I0801 02:22:48.812762  2097 net.cpp:122] Setting up ts_loss
+I0801 02:22:48.812770  2097 net.cpp:129] Top shape: (1)
+I0801 02:22:48.812777  2097 net.cpp:132]     with loss weight 0.3
+I0801 02:22:48.812789  2097 net.cpp:137] Memory required for data: 73347608
+I0801 02:22:48.812796  2097 layer_factory.hpp:77] Creating layer loss
+I0801 02:22:48.812806  2097 net.cpp:84] Creating Layer loss
+I0801 02:22:48.812814  2097 net.cpp:406] loss <- ip_s_1_ip_s_1_0_split_2
+I0801 02:22:48.812822  2097 net.cpp:406] loss <- label_cifar_1_split_1
+I0801 02:22:48.812830  2097 net.cpp:380] loss -> loss
+I0801 02:22:48.812840  2097 layer_factory.hpp:77] Creating layer loss
+I0801 02:22:48.813251  2097 net.cpp:122] Setting up loss
+I0801 02:22:48.813267  2097 net.cpp:129] Top shape: (1)
+I0801 02:22:48.813274  2097 net.cpp:132]     with loss weight 0.7
+I0801 02:22:48.813283  2097 net.cpp:137] Memory required for data: 73347612
+I0801 02:22:48.813292  2097 net.cpp:198] loss needs backward computation.
+I0801 02:22:48.813298  2097 net.cpp:198] ts_loss needs backward computation.
+I0801 02:22:48.813307  2097 net.cpp:200] accuracy does not need backward computation.
+I0801 02:22:48.813313  2097 net.cpp:200] sm_t_1 does not need backward computation.
+I0801 02:22:48.813320  2097 net.cpp:198] sm_s_1 needs backward computation.
+I0801 02:22:48.813328  2097 net.cpp:200] ip_t_1 does not need backward computation.
+I0801 02:22:48.813335  2097 net.cpp:200] pool_t_3 does not need backward computation.
+I0801 02:22:48.813393  2097 net.cpp:200] relu_t_3 does not need backward computation.
+I0801 02:22:48.813401  2097 net.cpp:200] conv_t_3 does not need backward computation.
+I0801 02:22:48.813410  2097 net.cpp:200] norm_t_2 does not need backward computation.
+I0801 02:22:48.813416  2097 net.cpp:200] pool_t_2 does not need backward computation.
+I0801 02:22:48.813436  2097 net.cpp:200] relu_t_2 does not need backward computation.
+I0801 02:22:48.813443  2097 net.cpp:200] conv_t_2 does not need backward computation.
+I0801 02:22:48.813452  2097 net.cpp:200] norm_t_1 does not need backward computation.
+I0801 02:22:48.813458  2097 net.cpp:200] relu_t_1 does not need backward computation.
+I0801 02:22:48.813465  2097 net.cpp:200] pool_t_1 does not need backward computation.
+I0801 02:22:48.813472  2097 net.cpp:200] conv_t_1 does not need backward computation.
+I0801 02:22:48.813480  2097 net.cpp:198] ip_s_1_ip_s_1_0_split needs backward computation.
+I0801 02:22:48.813488  2097 net.cpp:198] ip_s_1 needs backward computation.
+I0801 02:22:48.813495  2097 net.cpp:198] pool_s_3 needs backward computation.
+I0801 02:22:48.813503  2097 net.cpp:198] relu_s_3 needs backward computation.
+I0801 02:22:48.813510  2097 net.cpp:198] conv_s_3 needs backward computation.
+I0801 02:22:48.813518  2097 net.cpp:198] norm_s_2 needs backward computation.
+I0801 02:22:48.813524  2097 net.cpp:198] pool_s_2 needs backward computation.
+I0801 02:22:48.813531  2097 net.cpp:198] relu_s_2 needs backward computation.
+I0801 02:22:48.813539  2097 net.cpp:198] conv_s_2 needs backward computation.
+I0801 02:22:48.813545  2097 net.cpp:198] norm_s_1 needs backward computation.
+I0801 02:22:48.813552  2097 net.cpp:198] relu_s_1 needs backward computation.
+I0801 02:22:48.813560  2097 net.cpp:198] pool_s_1 needs backward computation.
+I0801 02:22:48.813566  2097 net.cpp:198] conv_s_1 needs backward computation.
+I0801 02:22:48.813575  2097 net.cpp:200] label_cifar_1_split does not need backward computation.
+I0801 02:22:48.813582  2097 net.cpp:200] data_cifar_0_split does not need backward computation.
+I0801 02:22:48.813591  2097 net.cpp:200] cifar does not need backward computation.
+I0801 02:22:48.813596  2097 net.cpp:242] This network produces output accuracy
+I0801 02:22:48.813604  2097 net.cpp:242] This network produces output loss
+I0801 02:22:48.813611  2097 net.cpp:242] This network produces output ts_loss
+I0801 02:22:48.813630  2097 net.cpp:255] Network initialization done.
+I0801 02:22:48.813694  2097 solver.cpp:56] Solver scaffolding done.
+I0801 02:22:48.814101  2097 caffe.cpp:155] Finetuning from cifar10_teacher/_iter_100000.caffemodel
+I0801 02:22:48.814807  2097 caffe.cpp:248] Starting Optimization
+I0801 02:22:48.814829  2097 solver.cpp:272] Solving CIFAR10_full
+I0801 02:22:48.814837  2097 solver.cpp:273] Learning Rate Policy: step
+I0801 02:22:48.815315  2097 solver.cpp:330] Iteration 0, Testing net (#0)
+I0801 02:22:49.620008  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:22:49.651530  2097 solver.cpp:397]     Test net output #0: accuracy = 0.0916
+I0801 02:22:49.651551  2097 solver.cpp:397]     Test net output #1: loss = 2.30256 (* 0.7 = 1.61179 loss)
+I0801 02:22:49.651556  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.34396 (* 0.3 = 2.20319 loss)
+I0801 02:22:49.675570  2097 solver.cpp:218] Iteration 0 (0 iter/s, 0.860585s/10 iters), loss = 3.81506
+I0801 02:22:49.675590  2097 solver.cpp:237]     Train net output #0: loss = 2.30267 (* 0.7 = 1.61187 loss)
+I0801 02:22:49.675595  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.34398 (* 0.3 = 2.20319 loss)
+I0801 02:22:49.675606  2097 sgd_solver.cpp:105] Iteration 0, lr = 0.001
+I0801 02:22:49.864567  2097 solver.cpp:330] Iteration 10, Testing net (#0)
+I0801 02:22:50.652526  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:22:50.683861  2097 solver.cpp:397]     Test net output #0: accuracy = 0.177
+I0801 02:22:50.683886  2097 solver.cpp:397]     Test net output #1: loss = 2.30161 (* 0.7 = 1.61113 loss)
+I0801 02:22:50.683889  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.34386 (* 0.3 = 2.20316 loss)
+I0801 02:22:50.705914  2097 solver.cpp:218] Iteration 10 (9.70651 iter/s, 1.03024s/10 iters), loss = 3.81449
+I0801 02:22:50.705931  2097 solver.cpp:237]     Train net output #0: loss = 2.30189 (* 0.7 = 1.61133 loss)
+I0801 02:22:50.705935  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.34389 (* 0.3 = 2.20317 loss)
+I0801 02:22:50.705958  2097 sgd_solver.cpp:105] Iteration 10, lr = 0.001
+I0801 02:22:50.895097  2097 solver.cpp:330] Iteration 20, Testing net (#0)
+I0801 02:22:51.683380  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:22:51.713902  2097 solver.cpp:397]     Test net output #0: accuracy = 0.1766
+I0801 02:22:51.713924  2097 solver.cpp:397]     Test net output #1: loss = 2.29955 (* 0.7 = 1.60968 loss)
+I0801 02:22:51.713929  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.34365 (* 0.3 = 2.20309 loss)
+I0801 02:22:51.736160  2097 solver.cpp:218] Iteration 20 (9.70741 iter/s, 1.03014s/10 iters), loss = 3.81293
+I0801 02:22:51.736177  2097 solver.cpp:237]     Train net output #0: loss = 2.29973 (* 0.7 = 1.60981 loss)
+I0801 02:22:51.736181  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.34371 (* 0.3 = 2.20311 loss)
+I0801 02:22:51.736186  2097 sgd_solver.cpp:105] Iteration 20, lr = 0.001
+I0801 02:22:51.925809  2097 solver.cpp:330] Iteration 30, Testing net (#0)
+I0801 02:22:52.706192  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:22:52.737198  2097 solver.cpp:397]     Test net output #0: accuracy = 0.1796
+I0801 02:22:52.737221  2097 solver.cpp:397]     Test net output #1: loss = 2.29665 (* 0.7 = 1.60766 loss)
+I0801 02:22:52.737226  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.34333 (* 0.3 = 2.203 loss)
+I0801 02:22:52.759395  2097 solver.cpp:218] Iteration 30 (9.77392 iter/s, 1.02313s/10 iters), loss = 3.80828
+I0801 02:22:52.759413  2097 solver.cpp:237]     Train net output #0: loss = 2.2934 (* 0.7 = 1.60538 loss)
+I0801 02:22:52.759418  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.34299 (* 0.3 = 2.2029 loss)
+I0801 02:22:52.759423  2097 sgd_solver.cpp:105] Iteration 30, lr = 0.001
+I0801 02:22:52.949273  2097 solver.cpp:330] Iteration 40, Testing net (#0)
+I0801 02:22:53.736239  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:22:53.767207  2097 solver.cpp:397]     Test net output #0: accuracy = 0.1827
+I0801 02:22:53.767231  2097 solver.cpp:397]     Test net output #1: loss = 2.29123 (* 0.7 = 1.60386 loss)
+I0801 02:22:53.767235  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.34272 (* 0.3 = 2.20282 loss)
+I0801 02:22:53.789414  2097 solver.cpp:218] Iteration 40 (9.70956 iter/s, 1.02991s/10 iters), loss = 3.80721
+I0801 02:22:53.789429  2097 solver.cpp:237]     Train net output #0: loss = 2.29199 (* 0.7 = 1.60439 loss)
+I0801 02:22:53.789434  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.34273 (* 0.3 = 2.20282 loss)
+I0801 02:22:53.789438  2097 sgd_solver.cpp:105] Iteration 40, lr = 0.001
+I0801 02:22:53.978951  2097 solver.cpp:330] Iteration 50, Testing net (#0)
+I0801 02:22:54.767279  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:22:54.798236  2097 solver.cpp:397]     Test net output #0: accuracy = 0.1598
+I0801 02:22:54.798261  2097 solver.cpp:397]     Test net output #1: loss = 2.2797 (* 0.7 = 1.59579 loss)
+I0801 02:22:54.798265  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.34124 (* 0.3 = 2.20237 loss)
+I0801 02:22:54.820669  2097 solver.cpp:218] Iteration 50 (9.69793 iter/s, 1.03115s/10 iters), loss = 3.78831
+I0801 02:22:54.820693  2097 solver.cpp:237]     Train net output #0: loss = 2.26631 (* 0.7 = 1.58642 loss)
+I0801 02:22:54.820698  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.33963 (* 0.3 = 2.20189 loss)
+I0801 02:22:54.820703  2097 sgd_solver.cpp:105] Iteration 50, lr = 0.001
+I0801 02:22:55.010836  2097 solver.cpp:330] Iteration 60, Testing net (#0)
+I0801 02:22:55.794134  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:22:55.825482  2097 solver.cpp:397]     Test net output #0: accuracy = 0.143
+I0801 02:22:55.825552  2097 solver.cpp:397]     Test net output #1: loss = 2.25638 (* 0.7 = 1.57946 loss)
+I0801 02:22:55.825564  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.3369 (* 0.3 = 2.20107 loss)
+I0801 02:22:55.847806  2097 solver.cpp:218] Iteration 60 (9.73684 iter/s, 1.02703s/10 iters), loss = 3.78616
+I0801 02:22:55.847856  2097 solver.cpp:237]     Train net output #0: loss = 2.2639 (* 0.7 = 1.58473 loss)
+I0801 02:22:55.847867  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.3381 (* 0.3 = 2.20143 loss)
+I0801 02:22:55.847878  2097 sgd_solver.cpp:105] Iteration 60, lr = 0.001
+I0801 02:22:56.041270  2097 solver.cpp:330] Iteration 70, Testing net (#0)
+I0801 02:22:56.828452  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:22:56.859870  2097 solver.cpp:397]     Test net output #0: accuracy = 0.177
+I0801 02:22:56.859920  2097 solver.cpp:397]     Test net output #1: loss = 2.22612 (* 0.7 = 1.55828 loss)
+I0801 02:22:56.859930  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.33214 (* 0.3 = 2.19964 loss)
+I0801 02:22:56.882175  2097 solver.cpp:218] Iteration 70 (9.669 iter/s, 1.03423s/10 iters), loss = 3.77437
+I0801 02:22:56.882203  2097 solver.cpp:237]     Train net output #0: loss = 2.24936 (* 0.7 = 1.57455 loss)
+I0801 02:22:56.882215  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.33273 (* 0.3 = 2.19982 loss)
+I0801 02:22:56.882225  2097 sgd_solver.cpp:105] Iteration 70, lr = 0.001
+I0801 02:22:57.072201  2097 solver.cpp:330] Iteration 80, Testing net (#0)
+I0801 02:22:57.856397  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:22:57.887692  2097 solver.cpp:397]     Test net output #0: accuracy = 0.2214
+I0801 02:22:57.887715  2097 solver.cpp:397]     Test net output #1: loss = 2.18489 (* 0.7 = 1.52942 loss)
+I0801 02:22:57.887719  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.32657 (* 0.3 = 2.19797 loss)
+I0801 02:22:57.910569  2097 solver.cpp:218] Iteration 80 (9.725 iter/s, 1.02828s/10 iters), loss = 3.6959
+I0801 02:22:57.910588  2097 solver.cpp:237]     Train net output #0: loss = 2.14256 (* 0.7 = 1.49979 loss)
+I0801 02:22:57.910593  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.32037 (* 0.3 = 2.19611 loss)
+I0801 02:22:57.910595  2097 sgd_solver.cpp:105] Iteration 80, lr = 0.001
+I0801 02:22:58.099992  2097 solver.cpp:330] Iteration 90, Testing net (#0)
+I0801 02:22:58.879324  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:22:58.910293  2097 solver.cpp:397]     Test net output #0: accuracy = 0.2431
+I0801 02:22:58.910317  2097 solver.cpp:397]     Test net output #1: loss = 2.1204 (* 0.7 = 1.48428 loss)
+I0801 02:22:58.910321  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.31456 (* 0.3 = 2.19437 loss)
+I0801 02:22:58.932618  2097 solver.cpp:218] Iteration 90 (9.78537 iter/s, 1.02193s/10 iters), loss = 3.72682
+I0801 02:22:58.932656  2097 solver.cpp:237]     Train net output #0: loss = 2.18628 (* 0.7 = 1.53039 loss)
+I0801 02:22:58.932660  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.32143 (* 0.3 = 2.19643 loss)
+I0801 02:22:58.932665  2097 sgd_solver.cpp:105] Iteration 90, lr = 0.001
+I0801 02:22:59.123440  2097 solver.cpp:330] Iteration 100, Testing net (#0)
+I0801 02:22:59.912500  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:22:59.943487  2097 solver.cpp:397]     Test net output #0: accuracy = 0.2575
+I0801 02:22:59.943511  2097 solver.cpp:397]     Test net output #1: loss = 2.07378 (* 0.7 = 1.45164 loss)
+I0801 02:22:59.943514  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.30262 (* 0.3 = 2.19079 loss)
+I0801 02:22:59.965693  2097 solver.cpp:218] Iteration 100 (9.68099 iter/s, 1.03295s/10 iters), loss = 3.61891
+I0801 02:22:59.965711  2097 solver.cpp:237]     Train net output #0: loss = 2.04345 (* 0.7 = 1.43041 loss)
+I0801 02:22:59.965716  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.295 (* 0.3 = 2.1885 loss)
+I0801 02:22:59.965720  2097 sgd_solver.cpp:105] Iteration 100, lr = 0.001
+I0801 02:23:00.156754  2097 solver.cpp:330] Iteration 110, Testing net (#0)
+I0801 02:23:00.943624  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:00.973903  2097 solver.cpp:397]     Test net output #0: accuracy = 0.269
+I0801 02:23:00.973958  2097 solver.cpp:397]     Test net output #1: loss = 2.06142 (* 0.7 = 1.44299 loss)
+I0801 02:23:00.973987  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.29559 (* 0.3 = 2.18868 loss)
+I0801 02:23:00.996903  2097 solver.cpp:218] Iteration 110 (9.69835 iter/s, 1.0311s/10 iters), loss = 3.63633
+I0801 02:23:00.996943  2097 solver.cpp:237]     Train net output #0: loss = 2.07077 (* 0.7 = 1.44954 loss)
+I0801 02:23:00.996955  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.28931 (* 0.3 = 2.18679 loss)
+I0801 02:23:00.996966  2097 sgd_solver.cpp:105] Iteration 110, lr = 0.001
+I0801 02:23:01.187386  2097 solver.cpp:330] Iteration 120, Testing net (#0)
+I0801 02:23:01.968991  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:02.000018  2097 solver.cpp:397]     Test net output #0: accuracy = 0.2737
+I0801 02:23:02.000042  2097 solver.cpp:397]     Test net output #1: loss = 2.03449 (* 0.7 = 1.42414 loss)
+I0801 02:23:02.000046  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.29395 (* 0.3 = 2.18819 loss)
+I0801 02:23:02.022145  2097 solver.cpp:218] Iteration 120 (9.75502 iter/s, 1.02511s/10 iters), loss = 3.63837
+I0801 02:23:02.022167  2097 solver.cpp:237]     Train net output #0: loss = 2.06845 (* 0.7 = 1.44792 loss)
+I0801 02:23:02.022172  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.30151 (* 0.3 = 2.19045 loss)
+I0801 02:23:02.022176  2097 sgd_solver.cpp:105] Iteration 120, lr = 0.001
+I0801 02:23:02.213150  2097 solver.cpp:330] Iteration 130, Testing net (#0)
+I0801 02:23:03.001051  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:03.032860  2097 solver.cpp:397]     Test net output #0: accuracy = 0.2656
+I0801 02:23:03.032886  2097 solver.cpp:397]     Test net output #1: loss = 2.02054 (* 0.7 = 1.41438 loss)
+I0801 02:23:03.032891  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.29125 (* 0.3 = 2.18738 loss)
+I0801 02:23:03.055366  2097 solver.cpp:218] Iteration 130 (9.67953 iter/s, 1.03311s/10 iters), loss = 3.56652
+I0801 02:23:03.055392  2097 solver.cpp:237]     Train net output #0: loss = 1.97368 (* 0.7 = 1.38158 loss)
+I0801 02:23:03.055395  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.28314 (* 0.3 = 2.18494 loss)
+I0801 02:23:03.055399  2097 sgd_solver.cpp:105] Iteration 130, lr = 0.001
+I0801 02:23:03.246002  2097 solver.cpp:330] Iteration 140, Testing net (#0)
+I0801 02:23:04.035070  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:04.065454  2097 solver.cpp:397]     Test net output #0: accuracy = 0.2849
+I0801 02:23:04.065476  2097 solver.cpp:397]     Test net output #1: loss = 1.99788 (* 0.7 = 1.39852 loss)
+I0801 02:23:04.065480  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.28535 (* 0.3 = 2.1856 loss)
+I0801 02:23:04.088577  2097 solver.cpp:218] Iteration 140 (9.67962 iter/s, 1.0331s/10 iters), loss = 3.58651
+I0801 02:23:04.088598  2097 solver.cpp:237]     Train net output #0: loss = 1.99919 (* 0.7 = 1.39943 loss)
+I0801 02:23:04.088603  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.29026 (* 0.3 = 2.18708 loss)
+I0801 02:23:04.088608  2097 sgd_solver.cpp:105] Iteration 140, lr = 0.001
+I0801 02:23:04.278741  2097 solver.cpp:330] Iteration 150, Testing net (#0)
+I0801 02:23:05.059514  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:05.090844  2097 solver.cpp:397]     Test net output #0: accuracy = 0.2747
+I0801 02:23:05.090868  2097 solver.cpp:397]     Test net output #1: loss = 1.98373 (* 0.7 = 1.38861 loss)
+I0801 02:23:05.090873  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.28498 (* 0.3 = 2.18549 loss)
+I0801 02:23:05.113162  2097 solver.cpp:218] Iteration 150 (9.76111 iter/s, 1.02447s/10 iters), loss = 3.65679
+I0801 02:23:05.113188  2097 solver.cpp:237]     Train net output #0: loss = 2.09404 (* 0.7 = 1.46583 loss)
+I0801 02:23:05.113193  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.3032 (* 0.3 = 2.19096 loss)
+I0801 02:23:05.113198  2097 sgd_solver.cpp:105] Iteration 150, lr = 0.001
+I0801 02:23:05.304174  2097 solver.cpp:330] Iteration 160, Testing net (#0)
+I0801 02:23:06.090421  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:06.122627  2097 solver.cpp:397]     Test net output #0: accuracy = 0.2834
+I0801 02:23:06.122651  2097 solver.cpp:397]     Test net output #1: loss = 1.97872 (* 0.7 = 1.3851 loss)
+I0801 02:23:06.122655  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.27662 (* 0.3 = 2.18299 loss)
+I0801 02:23:06.145165  2097 solver.cpp:218] Iteration 160 (9.69095 iter/s, 1.03189s/10 iters), loss = 3.58143
+I0801 02:23:06.145184  2097 solver.cpp:237]     Train net output #0: loss = 1.99444 (* 0.7 = 1.39611 loss)
+I0801 02:23:06.145189  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.28441 (* 0.3 = 2.18532 loss)
+I0801 02:23:06.145192  2097 sgd_solver.cpp:105] Iteration 160, lr = 0.001
+I0801 02:23:06.335045  2097 solver.cpp:330] Iteration 170, Testing net (#0)
+I0801 02:23:07.118955  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:07.150161  2097 solver.cpp:397]     Test net output #0: accuracy = 0.3005
+I0801 02:23:07.150183  2097 solver.cpp:397]     Test net output #1: loss = 1.96336 (* 0.7 = 1.37435 loss)
+I0801 02:23:07.150187  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.28228 (* 0.3 = 2.18468 loss)
+I0801 02:23:07.172510  2097 solver.cpp:218] Iteration 170 (9.73484 iter/s, 1.02724s/10 iters), loss = 3.57806
+I0801 02:23:07.172528  2097 solver.cpp:237]     Train net output #0: loss = 1.98973 (* 0.7 = 1.39281 loss)
+I0801 02:23:07.172531  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.28415 (* 0.3 = 2.18525 loss)
+I0801 02:23:07.172535  2097 sgd_solver.cpp:105] Iteration 170, lr = 0.001
+I0801 02:23:07.362164  2097 solver.cpp:330] Iteration 180, Testing net (#0)
+I0801 02:23:08.145663  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:08.176460  2097 solver.cpp:397]     Test net output #0: accuracy = 0.2864
+I0801 02:23:08.176481  2097 solver.cpp:397]     Test net output #1: loss = 1.96671 (* 0.7 = 1.3767 loss)
+I0801 02:23:08.176486  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.28071 (* 0.3 = 2.18421 loss)
+I0801 02:23:08.198552  2097 solver.cpp:218] Iteration 180 (9.74724 iter/s, 1.02593s/10 iters), loss = 3.53089
+I0801 02:23:08.198580  2097 solver.cpp:237]     Train net output #0: loss = 1.92918 (* 0.7 = 1.35042 loss)
+I0801 02:23:08.198585  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.26823 (* 0.3 = 2.18047 loss)
+I0801 02:23:08.198590  2097 sgd_solver.cpp:105] Iteration 180, lr = 0.001
+I0801 02:23:08.390703  2097 solver.cpp:330] Iteration 190, Testing net (#0)
+I0801 02:23:09.183179  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:09.214171  2097 solver.cpp:397]     Test net output #0: accuracy = 0.3018
+I0801 02:23:09.214196  2097 solver.cpp:397]     Test net output #1: loss = 1.94903 (* 0.7 = 1.36432 loss)
+I0801 02:23:09.214200  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.26815 (* 0.3 = 2.18045 loss)
+I0801 02:23:09.236600  2097 solver.cpp:218] Iteration 190 (9.6446 iter/s, 1.03685s/10 iters), loss = 3.58475
+I0801 02:23:09.236619  2097 solver.cpp:237]     Train net output #0: loss = 2.00715 (* 0.7 = 1.40501 loss)
+I0801 02:23:09.236624  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.26581 (* 0.3 = 2.17974 loss)
+I0801 02:23:09.236629  2097 sgd_solver.cpp:105] Iteration 190, lr = 0.001
+I0801 02:23:09.427065  2097 solver.cpp:330] Iteration 200, Testing net (#0)
+I0801 02:23:10.225455  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:10.259196  2097 solver.cpp:397]     Test net output #0: accuracy = 0.3142
+I0801 02:23:10.259218  2097 solver.cpp:397]     Test net output #1: loss = 1.89595 (* 0.7 = 1.32717 loss)
+I0801 02:23:10.259222  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.26093 (* 0.3 = 2.17828 loss)
+I0801 02:23:10.281510  2097 solver.cpp:218] Iteration 200 (9.57119 iter/s, 1.0448s/10 iters), loss = 3.52759
+I0801 02:23:10.281529  2097 solver.cpp:237]     Train net output #0: loss = 1.92039 (* 0.7 = 1.34428 loss)
+I0801 02:23:10.281533  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.27771 (* 0.3 = 2.18331 loss)
+I0801 02:23:10.281554  2097 sgd_solver.cpp:105] Iteration 200, lr = 0.001
+I0801 02:23:10.471356  2097 solver.cpp:330] Iteration 210, Testing net (#0)
+I0801 02:23:11.253173  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:11.284253  2097 solver.cpp:397]     Test net output #0: accuracy = 0.3167
+I0801 02:23:11.284277  2097 solver.cpp:397]     Test net output #1: loss = 1.90404 (* 0.7 = 1.33283 loss)
+I0801 02:23:11.284281  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.25719 (* 0.3 = 2.17716 loss)
+I0801 02:23:11.306632  2097 solver.cpp:218] Iteration 210 (9.75595 iter/s, 1.02502s/10 iters), loss = 3.57939
+I0801 02:23:11.306651  2097 solver.cpp:237]     Train net output #0: loss = 1.99199 (* 0.7 = 1.39439 loss)
+I0801 02:23:11.306655  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.28331 (* 0.3 = 2.18499 loss)
+I0801 02:23:11.306659  2097 sgd_solver.cpp:105] Iteration 210, lr = 0.001
+I0801 02:23:11.497447  2097 solver.cpp:330] Iteration 220, Testing net (#0)
+I0801 02:23:12.285878  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:12.317112  2097 solver.cpp:397]     Test net output #0: accuracy = 0.3289
+I0801 02:23:12.317137  2097 solver.cpp:397]     Test net output #1: loss = 1.86195 (* 0.7 = 1.30336 loss)
+I0801 02:23:12.317140  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.25455 (* 0.3 = 2.17636 loss)
+I0801 02:23:12.339714  2097 solver.cpp:218] Iteration 220 (9.68079 iter/s, 1.03297s/10 iters), loss = 3.47443
+I0801 02:23:12.339731  2097 solver.cpp:237]     Train net output #0: loss = 1.85274 (* 0.7 = 1.29692 loss)
+I0801 02:23:12.339736  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.25838 (* 0.3 = 2.17752 loss)
+I0801 02:23:12.339740  2097 sgd_solver.cpp:105] Iteration 220, lr = 0.001
+I0801 02:23:12.529916  2097 solver.cpp:330] Iteration 230, Testing net (#0)
+I0801 02:23:13.315227  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:13.346338  2097 solver.cpp:397]     Test net output #0: accuracy = 0.3344
+I0801 02:23:13.346362  2097 solver.cpp:397]     Test net output #1: loss = 1.85389 (* 0.7 = 1.29772 loss)
+I0801 02:23:13.346366  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.24941 (* 0.3 = 2.17482 loss)
+I0801 02:23:13.368535  2097 solver.cpp:218] Iteration 230 (9.72092 iter/s, 1.02871s/10 iters), loss = 3.48724
+I0801 02:23:13.368561  2097 solver.cpp:237]     Train net output #0: loss = 1.86801 (* 0.7 = 1.30761 loss)
+I0801 02:23:13.368566  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.26543 (* 0.3 = 2.17963 loss)
+I0801 02:23:13.368571  2097 sgd_solver.cpp:105] Iteration 230, lr = 0.001
+I0801 02:23:13.558498  2097 solver.cpp:330] Iteration 240, Testing net (#0)
+I0801 02:23:14.342355  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:14.373215  2097 solver.cpp:397]     Test net output #0: accuracy = 0.3278
+I0801 02:23:14.373239  2097 solver.cpp:397]     Test net output #1: loss = 1.84033 (* 0.7 = 1.28823 loss)
+I0801 02:23:14.373242  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.23841 (* 0.3 = 2.17152 loss)
+I0801 02:23:14.395565  2097 solver.cpp:218] Iteration 240 (9.7379 iter/s, 1.02692s/10 iters), loss = 3.41813
+I0801 02:23:14.395582  2097 solver.cpp:237]     Train net output #0: loss = 1.78166 (* 0.7 = 1.24716 loss)
+I0801 02:23:14.395586  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.23655 (* 0.3 = 2.17096 loss)
+I0801 02:23:14.395591  2097 sgd_solver.cpp:105] Iteration 240, lr = 0.001
+I0801 02:23:14.586480  2097 solver.cpp:330] Iteration 250, Testing net (#0)
+I0801 02:23:15.371909  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:15.402931  2097 solver.cpp:397]     Test net output #0: accuracy = 0.3294
+I0801 02:23:15.402954  2097 solver.cpp:397]     Test net output #1: loss = 1.84029 (* 0.7 = 1.2882 loss)
+I0801 02:23:15.402959  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.24574 (* 0.3 = 2.17372 loss)
+I0801 02:23:15.425514  2097 solver.cpp:218] Iteration 250 (9.71026 iter/s, 1.02984s/10 iters), loss = 3.5222
+I0801 02:23:15.425567  2097 solver.cpp:237]     Train net output #0: loss = 1.91933 (* 0.7 = 1.34353 loss)
+I0801 02:23:15.425572  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.26221 (* 0.3 = 2.17866 loss)
+I0801 02:23:15.425576  2097 sgd_solver.cpp:105] Iteration 250, lr = 0.001
+I0801 02:23:15.615301  2097 solver.cpp:330] Iteration 260, Testing net (#0)
+I0801 02:23:16.405880  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:16.437278  2097 solver.cpp:397]     Test net output #0: accuracy = 0.3554
+I0801 02:23:16.437300  2097 solver.cpp:397]     Test net output #1: loss = 1.79914 (* 0.7 = 1.2594 loss)
+I0801 02:23:16.437304  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.23995 (* 0.3 = 2.17198 loss)
+I0801 02:23:16.459632  2097 solver.cpp:218] Iteration 260 (9.67138 iter/s, 1.03398s/10 iters), loss = 3.24375
+I0801 02:23:16.459650  2097 solver.cpp:237]     Train net output #0: loss = 1.5497 (* 0.7 = 1.08479 loss)
+I0801 02:23:16.459655  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.19652 (* 0.3 = 2.15896 loss)
+I0801 02:23:16.459659  2097 sgd_solver.cpp:105] Iteration 260, lr = 0.001
+I0801 02:23:16.648931  2097 solver.cpp:330] Iteration 270, Testing net (#0)
+I0801 02:23:17.430057  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:17.460850  2097 solver.cpp:397]     Test net output #0: accuracy = 0.3218
+I0801 02:23:17.460872  2097 solver.cpp:397]     Test net output #1: loss = 1.85901 (* 0.7 = 1.30131 loss)
+I0801 02:23:17.460877  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.24814 (* 0.3 = 2.17444 loss)
+I0801 02:23:17.483232  2097 solver.cpp:218] Iteration 270 (9.77045 iter/s, 1.02349s/10 iters), loss = 3.48181
+I0801 02:23:17.483248  2097 solver.cpp:237]     Train net output #0: loss = 1.87185 (* 0.7 = 1.3103 loss)
+I0801 02:23:17.483253  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.23837 (* 0.3 = 2.17151 loss)
+I0801 02:23:17.483258  2097 sgd_solver.cpp:105] Iteration 270, lr = 0.001
+I0801 02:23:17.673683  2097 solver.cpp:330] Iteration 280, Testing net (#0)
+I0801 02:23:18.471897  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:18.503140  2097 solver.cpp:397]     Test net output #0: accuracy = 0.3156
+I0801 02:23:18.503165  2097 solver.cpp:397]     Test net output #1: loss = 1.82409 (* 0.7 = 1.27687 loss)
+I0801 02:23:18.503168  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.24984 (* 0.3 = 2.17495 loss)
+I0801 02:23:18.526295  2097 solver.cpp:218] Iteration 280 (9.58811 iter/s, 1.04296s/10 iters), loss = 3.53053
+I0801 02:23:18.526314  2097 solver.cpp:237]     Train net output #0: loss = 1.92974 (* 0.7 = 1.35082 loss)
+I0801 02:23:18.526317  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.26572 (* 0.3 = 2.17972 loss)
+I0801 02:23:18.526322  2097 sgd_solver.cpp:105] Iteration 280, lr = 0.001
+I0801 02:23:18.716998  2097 solver.cpp:330] Iteration 290, Testing net (#0)
+I0801 02:23:19.504272  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:19.535403  2097 solver.cpp:397]     Test net output #0: accuracy = 0.3288
+I0801 02:23:19.535425  2097 solver.cpp:397]     Test net output #1: loss = 1.79541 (* 0.7 = 1.25679 loss)
+I0801 02:23:19.535429  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.23515 (* 0.3 = 2.17054 loss)
+I0801 02:23:19.557796  2097 solver.cpp:218] Iteration 290 (9.69562 iter/s, 1.03139s/10 iters), loss = 3.45366
+I0801 02:23:19.557847  2097 solver.cpp:237]     Train net output #0: loss = 1.82983 (* 0.7 = 1.28088 loss)
+I0801 02:23:19.557865  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.24262 (* 0.3 = 2.17279 loss)
+I0801 02:23:19.557886  2097 sgd_solver.cpp:105] Iteration 290, lr = 0.001
+I0801 02:23:19.748117  2097 solver.cpp:330] Iteration 300, Testing net (#0)
+I0801 02:23:20.533262  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:20.564513  2097 solver.cpp:397]     Test net output #0: accuracy = 0.35
+I0801 02:23:20.564543  2097 solver.cpp:397]     Test net output #1: loss = 1.75672 (* 0.7 = 1.22971 loss)
+I0801 02:23:20.564548  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.22133 (* 0.3 = 2.1664 loss)
+I0801 02:23:20.586778  2097 solver.cpp:218] Iteration 300 (9.71965 iter/s, 1.02884s/10 iters), loss = 3.30841
+I0801 02:23:20.586814  2097 solver.cpp:237]     Train net output #0: loss = 1.64369 (* 0.7 = 1.15058 loss)
+I0801 02:23:20.586827  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.19276 (* 0.3 = 2.15783 loss)
+I0801 02:23:20.586836  2097 sgd_solver.cpp:105] Iteration 300, lr = 0.001
+I0801 02:23:20.776561  2097 solver.cpp:330] Iteration 310, Testing net (#0)
+I0801 02:23:21.572888  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:21.604372  2097 solver.cpp:397]     Test net output #0: accuracy = 0.3316
+I0801 02:23:21.604398  2097 solver.cpp:397]     Test net output #1: loss = 1.7759 (* 0.7 = 1.24313 loss)
+I0801 02:23:21.604403  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.23738 (* 0.3 = 2.17121 loss)
+I0801 02:23:21.627249  2097 solver.cpp:218] Iteration 310 (9.6122 iter/s, 1.04035s/10 iters), loss = 3.32205
+I0801 02:23:21.627269  2097 solver.cpp:237]     Train net output #0: loss = 1.64929 (* 0.7 = 1.1545 loss)
+I0801 02:23:21.627274  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.22516 (* 0.3 = 2.16755 loss)
+I0801 02:23:21.627277  2097 sgd_solver.cpp:105] Iteration 310, lr = 0.001
+I0801 02:23:21.817802  2097 solver.cpp:330] Iteration 320, Testing net (#0)
+I0801 02:23:22.608489  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:22.638356  2097 solver.cpp:397]     Test net output #0: accuracy = 0.345
+I0801 02:23:22.638380  2097 solver.cpp:397]     Test net output #1: loss = 1.77093 (* 0.7 = 1.23965 loss)
+I0801 02:23:22.638383  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.22956 (* 0.3 = 2.16887 loss)
+I0801 02:23:22.660998  2097 solver.cpp:218] Iteration 320 (9.67455 iter/s, 1.03364s/10 iters), loss = 3.5192
+I0801 02:23:22.661022  2097 solver.cpp:237]     Train net output #0: loss = 1.92559 (* 0.7 = 1.34791 loss)
+I0801 02:23:22.661027  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.23762 (* 0.3 = 2.17129 loss)
+I0801 02:23:22.661031  2097 sgd_solver.cpp:105] Iteration 320, lr = 0.001
+I0801 02:23:22.850688  2097 solver.cpp:330] Iteration 330, Testing net (#0)
+I0801 02:23:23.628466  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:23.662330  2097 solver.cpp:397]     Test net output #0: accuracy = 0.3531
+I0801 02:23:23.662353  2097 solver.cpp:397]     Test net output #1: loss = 1.76238 (* 0.7 = 1.23367 loss)
+I0801 02:23:23.662358  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.23481 (* 0.3 = 2.17044 loss)
+I0801 02:23:23.684664  2097 solver.cpp:218] Iteration 330 (9.76989 iter/s, 1.02355s/10 iters), loss = 3.49651
+I0801 02:23:23.684682  2097 solver.cpp:237]     Train net output #0: loss = 1.88757 (* 0.7 = 1.3213 loss)
+I0801 02:23:23.684686  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.25072 (* 0.3 = 2.17522 loss)
+I0801 02:23:23.684690  2097 sgd_solver.cpp:105] Iteration 330, lr = 0.001
+I0801 02:23:23.875303  2097 solver.cpp:330] Iteration 340, Testing net (#0)
+I0801 02:23:24.689882  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:24.721146  2097 solver.cpp:397]     Test net output #0: accuracy = 0.3589
+I0801 02:23:24.721170  2097 solver.cpp:397]     Test net output #1: loss = 1.75536 (* 0.7 = 1.22875 loss)
+I0801 02:23:24.721174  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.23012 (* 0.3 = 2.16904 loss)
+I0801 02:23:24.743660  2097 solver.cpp:218] Iteration 340 (9.44388 iter/s, 1.05889s/10 iters), loss = 3.41739
+I0801 02:23:24.743679  2097 solver.cpp:237]     Train net output #0: loss = 1.78045 (* 0.7 = 1.24631 loss)
+I0801 02:23:24.743682  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.23691 (* 0.3 = 2.17107 loss)
+I0801 02:23:24.743686  2097 sgd_solver.cpp:105] Iteration 340, lr = 0.001
+I0801 02:23:24.934521  2097 solver.cpp:330] Iteration 350, Testing net (#0)
+I0801 02:23:25.723431  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:25.754245  2097 solver.cpp:397]     Test net output #0: accuracy = 0.3702
+I0801 02:23:25.754266  2097 solver.cpp:397]     Test net output #1: loss = 1.73266 (* 0.7 = 1.21286 loss)
+I0801 02:23:25.754269  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.2116 (* 0.3 = 2.16348 loss)
+I0801 02:23:25.776759  2097 solver.cpp:218] Iteration 350 (9.68068 iter/s, 1.03299s/10 iters), loss = 3.28094
+I0801 02:23:25.776787  2097 solver.cpp:237]     Train net output #0: loss = 1.60733 (* 0.7 = 1.12513 loss)
+I0801 02:23:25.776828  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.18603 (* 0.3 = 2.15581 loss)
+I0801 02:23:25.776834  2097 sgd_solver.cpp:105] Iteration 350, lr = 0.001
+I0801 02:23:25.967119  2097 solver.cpp:330] Iteration 360, Testing net (#0)
+I0801 02:23:26.750666  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:26.781652  2097 solver.cpp:397]     Test net output #0: accuracy = 0.3834
+I0801 02:23:26.781675  2097 solver.cpp:397]     Test net output #1: loss = 1.68602 (* 0.7 = 1.18021 loss)
+I0801 02:23:26.781679  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.21321 (* 0.3 = 2.16396 loss)
+I0801 02:23:26.803884  2097 solver.cpp:218] Iteration 360 (9.73701 iter/s, 1.02701s/10 iters), loss = 3.43014
+I0801 02:23:26.803900  2097 solver.cpp:237]     Train net output #0: loss = 1.80025 (* 0.7 = 1.26018 loss)
+I0801 02:23:26.803905  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.23321 (* 0.3 = 2.16996 loss)
+I0801 02:23:26.803910  2097 sgd_solver.cpp:105] Iteration 360, lr = 0.001
+I0801 02:23:26.994091  2097 solver.cpp:330] Iteration 370, Testing net (#0)
+I0801 02:23:27.781589  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:27.811883  2097 solver.cpp:397]     Test net output #0: accuracy = 0.3785
+I0801 02:23:27.811906  2097 solver.cpp:397]     Test net output #1: loss = 1.68856 (* 0.7 = 1.182 loss)
+I0801 02:23:27.811910  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.20663 (* 0.3 = 2.16199 loss)
+I0801 02:23:27.834661  2097 solver.cpp:218] Iteration 370 (9.70246 iter/s, 1.03067s/10 iters), loss = 3.29907
+I0801 02:23:27.834691  2097 solver.cpp:237]     Train net output #0: loss = 1.6311 (* 0.7 = 1.14177 loss)
+I0801 02:23:27.834718  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.19102 (* 0.3 = 2.1573 loss)
+I0801 02:23:27.834723  2097 sgd_solver.cpp:105] Iteration 370, lr = 0.001
+I0801 02:23:28.025004  2097 solver.cpp:330] Iteration 380, Testing net (#0)
+I0801 02:23:28.813761  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:28.845000  2097 solver.cpp:397]     Test net output #0: accuracy = 0.3861
+I0801 02:23:28.845022  2097 solver.cpp:397]     Test net output #1: loss = 1.68681 (* 0.7 = 1.18076 loss)
+I0801 02:23:28.845026  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.20668 (* 0.3 = 2.162 loss)
+I0801 02:23:28.867260  2097 solver.cpp:218] Iteration 380 (9.68539 iter/s, 1.03248s/10 iters), loss = 3.36471
+I0801 02:23:28.867278  2097 solver.cpp:237]     Train net output #0: loss = 1.71239 (* 0.7 = 1.19867 loss)
+I0801 02:23:28.867283  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.22013 (* 0.3 = 2.16604 loss)
+I0801 02:23:28.867287  2097 sgd_solver.cpp:105] Iteration 380, lr = 0.001
+I0801 02:23:29.057278  2097 solver.cpp:330] Iteration 390, Testing net (#0)
+I0801 02:23:29.841233  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:29.872673  2097 solver.cpp:397]     Test net output #0: accuracy = 0.3772
+I0801 02:23:29.872695  2097 solver.cpp:397]     Test net output #1: loss = 1.69974 (* 0.7 = 1.18982 loss)
+I0801 02:23:29.872699  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.20781 (* 0.3 = 2.16234 loss)
+I0801 02:23:29.894978  2097 solver.cpp:218] Iteration 390 (9.73131 iter/s, 1.02761s/10 iters), loss = 3.32635
+I0801 02:23:29.894994  2097 solver.cpp:237]     Train net output #0: loss = 1.67088 (* 0.7 = 1.16962 loss)
+I0801 02:23:29.894999  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.18911 (* 0.3 = 2.15673 loss)
+I0801 02:23:29.895004  2097 sgd_solver.cpp:105] Iteration 390, lr = 0.001
+I0801 02:23:30.085669  2097 solver.cpp:330] Iteration 400, Testing net (#0)
+I0801 02:23:30.872750  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:30.904016  2097 solver.cpp:397]     Test net output #0: accuracy = 0.3699
+I0801 02:23:30.904040  2097 solver.cpp:397]     Test net output #1: loss = 1.69665 (* 0.7 = 1.18765 loss)
+I0801 02:23:30.904044  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.2056 (* 0.3 = 2.16168 loss)
+I0801 02:23:30.926348  2097 solver.cpp:218] Iteration 400 (9.69684 iter/s, 1.03126s/10 iters), loss = 3.22397
+I0801 02:23:30.926370  2097 solver.cpp:237]     Train net output #0: loss = 1.53505 (* 0.7 = 1.07453 loss)
+I0801 02:23:30.926374  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.16478 (* 0.3 = 2.14943 loss)
+I0801 02:23:30.926378  2097 sgd_solver.cpp:105] Iteration 400, lr = 0.001
+I0801 02:23:31.116339  2097 solver.cpp:330] Iteration 410, Testing net (#0)
+I0801 02:23:31.903566  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:31.934659  2097 solver.cpp:397]     Test net output #0: accuracy = 0.3899
+I0801 02:23:31.934682  2097 solver.cpp:397]     Test net output #1: loss = 1.67149 (* 0.7 = 1.17004 loss)
+I0801 02:23:31.934686  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.19706 (* 0.3 = 2.15912 loss)
+I0801 02:23:31.956957  2097 solver.cpp:218] Iteration 410 (9.70405 iter/s, 1.0305s/10 iters), loss = 3.38807
+I0801 02:23:31.956974  2097 solver.cpp:237]     Train net output #0: loss = 1.74899 (* 0.7 = 1.22429 loss)
+I0801 02:23:31.956979  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.21259 (* 0.3 = 2.16378 loss)
+I0801 02:23:31.956982  2097 sgd_solver.cpp:105] Iteration 410, lr = 0.001
+I0801 02:23:32.147286  2097 solver.cpp:330] Iteration 420, Testing net (#0)
+I0801 02:23:32.932003  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:32.963261  2097 solver.cpp:397]     Test net output #0: accuracy = 0.3939
+I0801 02:23:32.963284  2097 solver.cpp:397]     Test net output #1: loss = 1.66237 (* 0.7 = 1.16366 loss)
+I0801 02:23:32.963289  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.20693 (* 0.3 = 2.16208 loss)
+I0801 02:23:32.986136  2097 solver.cpp:218] Iteration 420 (9.71751 iter/s, 1.02907s/10 iters), loss = 3.40973
+I0801 02:23:32.986160  2097 solver.cpp:237]     Train net output #0: loss = 1.77525 (* 0.7 = 1.24267 loss)
+I0801 02:23:32.986166  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.22354 (* 0.3 = 2.16706 loss)
+I0801 02:23:32.986169  2097 sgd_solver.cpp:105] Iteration 420, lr = 0.001
+I0801 02:23:33.176071  2097 solver.cpp:330] Iteration 430, Testing net (#0)
+I0801 02:23:33.962051  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:33.993083  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4063
+I0801 02:23:33.993108  2097 solver.cpp:397]     Test net output #1: loss = 1.64269 (* 0.7 = 1.14989 loss)
+I0801 02:23:33.993113  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.19948 (* 0.3 = 2.15985 loss)
+I0801 02:23:34.015830  2097 solver.cpp:218] Iteration 430 (9.7127 iter/s, 1.02958s/10 iters), loss = 3.27697
+I0801 02:23:34.015856  2097 solver.cpp:237]     Train net output #0: loss = 1.59715 (* 0.7 = 1.11801 loss)
+I0801 02:23:34.015861  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.19655 (* 0.3 = 2.15896 loss)
+I0801 02:23:34.015866  2097 sgd_solver.cpp:105] Iteration 430, lr = 0.001
+I0801 02:23:34.206455  2097 solver.cpp:330] Iteration 440, Testing net (#0)
+I0801 02:23:34.994994  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:35.018995  2097 solver.cpp:397]     Test net output #0: accuracy = 0.3816
+I0801 02:23:35.019062  2097 solver.cpp:397]     Test net output #1: loss = 1.66279 (* 0.7 = 1.16395 loss)
+I0801 02:23:35.019073  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.19576 (* 0.3 = 2.15873 loss)
+I0801 02:23:35.043344  2097 solver.cpp:218] Iteration 440 (9.73335 iter/s, 1.0274s/10 iters), loss = 3.39759
+I0801 02:23:35.043391  2097 solver.cpp:237]     Train net output #0: loss = 1.75861 (* 0.7 = 1.23103 loss)
+I0801 02:23:35.043406  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.22187 (* 0.3 = 2.16656 loss)
+I0801 02:23:35.043416  2097 sgd_solver.cpp:105] Iteration 440, lr = 0.001
+I0801 02:23:35.232365  2097 solver.cpp:330] Iteration 450, Testing net (#0)
+I0801 02:23:36.015714  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:36.046634  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4032
+I0801 02:23:36.046658  2097 solver.cpp:397]     Test net output #1: loss = 1.64552 (* 0.7 = 1.15187 loss)
+I0801 02:23:36.046663  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.20918 (* 0.3 = 2.16275 loss)
+I0801 02:23:36.068984  2097 solver.cpp:218] Iteration 450 (9.75129 iter/s, 1.02551s/10 iters), loss = 3.14272
+I0801 02:23:36.069001  2097 solver.cpp:237]     Train net output #0: loss = 1.41582 (* 0.7 = 0.991073 loss)
+I0801 02:23:36.069006  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.17215 (* 0.3 = 2.15164 loss)
+I0801 02:23:36.069010  2097 sgd_solver.cpp:105] Iteration 450, lr = 0.001
+I0801 02:23:36.258508  2097 solver.cpp:330] Iteration 460, Testing net (#0)
+I0801 02:23:37.048727  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:37.079922  2097 solver.cpp:397]     Test net output #0: accuracy = 0.382
+I0801 02:23:37.079946  2097 solver.cpp:397]     Test net output #1: loss = 1.68029 (* 0.7 = 1.1762 loss)
+I0801 02:23:37.079951  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.19637 (* 0.3 = 2.15891 loss)
+I0801 02:23:37.102176  2097 solver.cpp:218] Iteration 460 (9.67973 iter/s, 1.03309s/10 iters), loss = 3.29097
+I0801 02:23:37.102195  2097 solver.cpp:237]     Train net output #0: loss = 1.61182 (* 0.7 = 1.12827 loss)
+I0801 02:23:37.102200  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.20899 (* 0.3 = 2.1627 loss)
+I0801 02:23:37.102203  2097 sgd_solver.cpp:105] Iteration 460, lr = 0.001
+I0801 02:23:37.292111  2097 solver.cpp:330] Iteration 470, Testing net (#0)
+I0801 02:23:38.076422  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:38.110477  2097 solver.cpp:397]     Test net output #0: accuracy = 0.3789
+I0801 02:23:38.110502  2097 solver.cpp:397]     Test net output #1: loss = 1.68416 (* 0.7 = 1.17892 loss)
+I0801 02:23:38.110507  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.20254 (* 0.3 = 2.16076 loss)
+I0801 02:23:38.132735  2097 solver.cpp:218] Iteration 470 (9.70447 iter/s, 1.03045s/10 iters), loss = 3.39699
+I0801 02:23:38.132751  2097 solver.cpp:237]     Train net output #0: loss = 1.75925 (* 0.7 = 1.23148 loss)
+I0801 02:23:38.132755  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.21839 (* 0.3 = 2.16552 loss)
+I0801 02:23:38.132760  2097 sgd_solver.cpp:105] Iteration 470, lr = 0.001
+I0801 02:23:38.322474  2097 solver.cpp:330] Iteration 480, Testing net (#0)
+I0801 02:23:39.103324  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:39.134241  2097 solver.cpp:397]     Test net output #0: accuracy = 0.3776
+I0801 02:23:39.134265  2097 solver.cpp:397]     Test net output #1: loss = 1.68893 (* 0.7 = 1.18225 loss)
+I0801 02:23:39.134269  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.19101 (* 0.3 = 2.1573 loss)
+I0801 02:23:39.156520  2097 solver.cpp:218] Iteration 480 (9.76866 iter/s, 1.02368s/10 iters), loss = 3.53467
+I0801 02:23:39.156539  2097 solver.cpp:237]     Train net output #0: loss = 1.95042 (* 0.7 = 1.3653 loss)
+I0801 02:23:39.156543  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.23124 (* 0.3 = 2.16937 loss)
+I0801 02:23:39.156548  2097 sgd_solver.cpp:105] Iteration 480, lr = 0.001
+I0801 02:23:39.346420  2097 solver.cpp:330] Iteration 490, Testing net (#0)
+I0801 02:23:40.134814  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:40.165434  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4065
+I0801 02:23:40.165459  2097 solver.cpp:397]     Test net output #1: loss = 1.62491 (* 0.7 = 1.13743 loss)
+I0801 02:23:40.165463  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.19363 (* 0.3 = 2.15809 loss)
+I0801 02:23:40.188031  2097 solver.cpp:218] Iteration 490 (9.69555 iter/s, 1.0314s/10 iters), loss = 3.34985
+I0801 02:23:40.188050  2097 solver.cpp:237]     Train net output #0: loss = 1.69883 (* 0.7 = 1.18918 loss)
+I0801 02:23:40.188055  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.20222 (* 0.3 = 2.16067 loss)
+I0801 02:23:40.188060  2097 sgd_solver.cpp:105] Iteration 490, lr = 0.001
+I0801 02:23:40.305402  2103 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:40.380786  2097 solver.cpp:330] Iteration 500, Testing net (#0)
+I0801 02:23:41.164893  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:41.198688  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4099
+I0801 02:23:41.198711  2097 solver.cpp:397]     Test net output #1: loss = 1.63356 (* 0.7 = 1.14349 loss)
+I0801 02:23:41.198715  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.18812 (* 0.3 = 2.15644 loss)
+I0801 02:23:41.221168  2097 solver.cpp:218] Iteration 500 (9.68029 iter/s, 1.03303s/10 iters), loss = 3.41217
+I0801 02:23:41.221189  2097 solver.cpp:237]     Train net output #0: loss = 1.78039 (* 0.7 = 1.24627 loss)
+I0801 02:23:41.221194  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.21966 (* 0.3 = 2.1659 loss)
+I0801 02:23:41.221199  2097 sgd_solver.cpp:105] Iteration 500, lr = 0.001
+I0801 02:23:41.412438  2097 solver.cpp:330] Iteration 510, Testing net (#0)
+I0801 02:23:42.190711  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:42.223881  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4161
+I0801 02:23:42.223904  2097 solver.cpp:397]     Test net output #1: loss = 1.60123 (* 0.7 = 1.12086 loss)
+I0801 02:23:42.223908  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.18269 (* 0.3 = 2.15481 loss)
+I0801 02:23:42.246245  2097 solver.cpp:218] Iteration 510 (9.75643 iter/s, 1.02497s/10 iters), loss = 3.30531
+I0801 02:23:42.246271  2097 solver.cpp:237]     Train net output #0: loss = 1.63397 (* 0.7 = 1.14378 loss)
+I0801 02:23:42.246275  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.20511 (* 0.3 = 2.16153 loss)
+I0801 02:23:42.246302  2097 sgd_solver.cpp:105] Iteration 510, lr = 0.001
+I0801 02:23:42.435626  2097 solver.cpp:330] Iteration 520, Testing net (#0)
+I0801 02:23:43.222369  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:43.253456  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4161
+I0801 02:23:43.253479  2097 solver.cpp:397]     Test net output #1: loss = 1.58338 (* 0.7 = 1.10837 loss)
+I0801 02:23:43.253484  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.17384 (* 0.3 = 2.15215 loss)
+I0801 02:23:43.275683  2097 solver.cpp:218] Iteration 520 (9.7151 iter/s, 1.02933s/10 iters), loss = 3.28668
+I0801 02:23:43.275701  2097 solver.cpp:237]     Train net output #0: loss = 1.61421 (* 0.7 = 1.12995 loss)
+I0801 02:23:43.275705  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.18909 (* 0.3 = 2.15673 loss)
+I0801 02:23:43.275709  2097 sgd_solver.cpp:105] Iteration 520, lr = 0.001
+I0801 02:23:43.465821  2097 solver.cpp:330] Iteration 530, Testing net (#0)
+I0801 02:23:44.261687  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:44.292795  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4146
+I0801 02:23:44.292848  2097 solver.cpp:397]     Test net output #1: loss = 1.5831 (* 0.7 = 1.10817 loss)
+I0801 02:23:44.292860  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.17889 (* 0.3 = 2.15367 loss)
+I0801 02:23:44.315474  2097 solver.cpp:218] Iteration 530 (9.61834 iter/s, 1.03968s/10 iters), loss = 3.30716
+I0801 02:23:44.315521  2097 solver.cpp:237]     Train net output #0: loss = 1.644 (* 0.7 = 1.1508 loss)
+I0801 02:23:44.315532  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.18787 (* 0.3 = 2.15636 loss)
+I0801 02:23:44.315551  2097 sgd_solver.cpp:105] Iteration 530, lr = 0.001
+I0801 02:23:44.505389  2097 solver.cpp:330] Iteration 540, Testing net (#0)
+I0801 02:23:45.291399  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:45.322279  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4162
+I0801 02:23:45.322302  2097 solver.cpp:397]     Test net output #1: loss = 1.57828 (* 0.7 = 1.1048 loss)
+I0801 02:23:45.322306  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.18309 (* 0.3 = 2.15493 loss)
+I0801 02:23:45.344431  2097 solver.cpp:218] Iteration 540 (9.71983 iter/s, 1.02882s/10 iters), loss = 3.31959
+I0801 02:23:45.344446  2097 solver.cpp:237]     Train net output #0: loss = 1.66259 (* 0.7 = 1.16381 loss)
+I0801 02:23:45.344451  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.18594 (* 0.3 = 2.15578 loss)
+I0801 02:23:45.344455  2097 sgd_solver.cpp:105] Iteration 540, lr = 0.001
+I0801 02:23:45.535526  2097 solver.cpp:330] Iteration 550, Testing net (#0)
+I0801 02:23:46.319263  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:46.350267  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4208
+I0801 02:23:46.350291  2097 solver.cpp:397]     Test net output #1: loss = 1.59624 (* 0.7 = 1.11737 loss)
+I0801 02:23:46.350294  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.17029 (* 0.3 = 2.15109 loss)
+I0801 02:23:46.372336  2097 solver.cpp:218] Iteration 550 (9.72951 iter/s, 1.0278s/10 iters), loss = 3.34866
+I0801 02:23:46.372355  2097 solver.cpp:237]     Train net output #0: loss = 1.70314 (* 0.7 = 1.1922 loss)
+I0801 02:23:46.372360  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.1882 (* 0.3 = 2.15646 loss)
+I0801 02:23:46.372364  2097 sgd_solver.cpp:105] Iteration 550, lr = 0.001
+I0801 02:23:46.561933  2097 solver.cpp:330] Iteration 560, Testing net (#0)
+I0801 02:23:47.352849  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:47.383882  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4176
+I0801 02:23:47.383905  2097 solver.cpp:397]     Test net output #1: loss = 1.61029 (* 0.7 = 1.1272 loss)
+I0801 02:23:47.383909  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.18739 (* 0.3 = 2.15622 loss)
+I0801 02:23:47.406247  2097 solver.cpp:218] Iteration 560 (9.67303 iter/s, 1.0338s/10 iters), loss = 3.24801
+I0801 02:23:47.406283  2097 solver.cpp:237]     Train net output #0: loss = 1.55881 (* 0.7 = 1.09117 loss)
+I0801 02:23:47.406287  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.18948 (* 0.3 = 2.15684 loss)
+I0801 02:23:47.406291  2097 sgd_solver.cpp:105] Iteration 560, lr = 0.001
+I0801 02:23:47.596207  2097 solver.cpp:330] Iteration 570, Testing net (#0)
+I0801 02:23:48.377841  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:48.408586  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4087
+I0801 02:23:48.408609  2097 solver.cpp:397]     Test net output #1: loss = 1.6086 (* 0.7 = 1.12602 loss)
+I0801 02:23:48.408613  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.17523 (* 0.3 = 2.15257 loss)
+I0801 02:23:48.430989  2097 solver.cpp:218] Iteration 570 (9.75974 iter/s, 1.02462s/10 iters), loss = 3.30506
+I0801 02:23:48.431006  2097 solver.cpp:237]     Train net output #0: loss = 1.6464 (* 0.7 = 1.15248 loss)
+I0801 02:23:48.431010  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.17526 (* 0.3 = 2.15258 loss)
+I0801 02:23:48.431015  2097 sgd_solver.cpp:105] Iteration 570, lr = 0.001
+I0801 02:23:48.621340  2097 solver.cpp:330] Iteration 580, Testing net (#0)
+I0801 02:23:49.413357  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:49.444849  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4145
+I0801 02:23:49.444875  2097 solver.cpp:397]     Test net output #1: loss = 1.58766 (* 0.7 = 1.11136 loss)
+I0801 02:23:49.444877  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.17602 (* 0.3 = 2.15281 loss)
+I0801 02:23:49.467274  2097 solver.cpp:218] Iteration 580 (9.65084 iter/s, 1.03618s/10 iters), loss = 3.28916
+I0801 02:23:49.467293  2097 solver.cpp:237]     Train net output #0: loss = 1.61748 (* 0.7 = 1.13224 loss)
+I0801 02:23:49.467298  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.18974 (* 0.3 = 2.15692 loss)
+I0801 02:23:49.467301  2097 sgd_solver.cpp:105] Iteration 580, lr = 0.001
+I0801 02:23:49.656810  2097 solver.cpp:330] Iteration 590, Testing net (#0)
+I0801 02:23:50.442652  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:50.473590  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4227
+I0801 02:23:50.473613  2097 solver.cpp:397]     Test net output #1: loss = 1.5756 (* 0.7 = 1.10292 loss)
+I0801 02:23:50.473618  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.16787 (* 0.3 = 2.15036 loss)
+I0801 02:23:50.496457  2097 solver.cpp:218] Iteration 590 (9.71749 iter/s, 1.02907s/10 iters), loss = 3.38289
+I0801 02:23:50.496481  2097 solver.cpp:237]     Train net output #0: loss = 1.74875 (* 0.7 = 1.22413 loss)
+I0801 02:23:50.496486  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.19586 (* 0.3 = 2.15876 loss)
+I0801 02:23:50.496490  2097 sgd_solver.cpp:105] Iteration 590, lr = 0.001
+I0801 02:23:50.686662  2097 solver.cpp:330] Iteration 600, Testing net (#0)
+I0801 02:23:51.468255  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:51.501828  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4436
+I0801 02:23:51.501852  2097 solver.cpp:397]     Test net output #1: loss = 1.53632 (* 0.7 = 1.07543 loss)
+I0801 02:23:51.501855  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.17456 (* 0.3 = 2.15237 loss)
+I0801 02:23:51.524060  2097 solver.cpp:218] Iteration 600 (9.73246 iter/s, 1.02749s/10 iters), loss = 3.19921
+I0801 02:23:51.524078  2097 solver.cpp:237]     Train net output #0: loss = 1.49738 (* 0.7 = 1.04817 loss)
+I0801 02:23:51.524082  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.17013 (* 0.3 = 2.15104 loss)
+I0801 02:23:51.524086  2097 sgd_solver.cpp:105] Iteration 600, lr = 0.001
+I0801 02:23:51.714671  2097 solver.cpp:330] Iteration 610, Testing net (#0)
+I0801 02:23:52.517467  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:52.533762  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4256
+I0801 02:23:52.533792  2097 solver.cpp:397]     Test net output #1: loss = 1.57256 (* 0.7 = 1.10079 loss)
+I0801 02:23:52.533797  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.17386 (* 0.3 = 2.15216 loss)
+I0801 02:23:52.557938  2097 solver.cpp:218] Iteration 610 (9.67337 iter/s, 1.03377s/10 iters), loss = 3.29423
+I0801 02:23:52.557971  2097 solver.cpp:237]     Train net output #0: loss = 1.63622 (* 0.7 = 1.14535 loss)
+I0801 02:23:52.557976  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.16292 (* 0.3 = 2.14887 loss)
+I0801 02:23:52.557981  2097 sgd_solver.cpp:105] Iteration 610, lr = 0.001
+I0801 02:23:52.751559  2097 solver.cpp:330] Iteration 620, Testing net (#0)
+I0801 02:23:53.542042  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:53.573390  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4393
+I0801 02:23:53.573412  2097 solver.cpp:397]     Test net output #1: loss = 1.53978 (* 0.7 = 1.07785 loss)
+I0801 02:23:53.573416  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.15755 (* 0.3 = 2.14726 loss)
+I0801 02:23:53.596400  2097 solver.cpp:218] Iteration 620 (9.63076 iter/s, 1.03834s/10 iters), loss = 3.22459
+I0801 02:23:53.596423  2097 solver.cpp:237]     Train net output #0: loss = 1.53667 (* 0.7 = 1.07567 loss)
+I0801 02:23:53.596428  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.16305 (* 0.3 = 2.14892 loss)
+I0801 02:23:53.596453  2097 sgd_solver.cpp:105] Iteration 620, lr = 0.001
+I0801 02:23:53.787003  2097 solver.cpp:330] Iteration 630, Testing net (#0)
+I0801 02:23:54.570679  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:54.601644  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4192
+I0801 02:23:54.601670  2097 solver.cpp:397]     Test net output #1: loss = 1.57637 (* 0.7 = 1.10346 loss)
+I0801 02:23:54.601673  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.16527 (* 0.3 = 2.14958 loss)
+I0801 02:23:54.623989  2097 solver.cpp:218] Iteration 630 (9.73259 iter/s, 1.02748s/10 iters), loss = 3.24002
+I0801 02:23:54.624017  2097 solver.cpp:237]     Train net output #0: loss = 1.56517 (* 0.7 = 1.09562 loss)
+I0801 02:23:54.624022  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.14801 (* 0.3 = 2.1444 loss)
+I0801 02:23:54.624025  2097 sgd_solver.cpp:105] Iteration 630, lr = 0.001
+I0801 02:23:54.814720  2097 solver.cpp:330] Iteration 640, Testing net (#0)
+I0801 02:23:55.600062  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:55.633857  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4499
+I0801 02:23:55.633882  2097 solver.cpp:397]     Test net output #1: loss = 1.52933 (* 0.7 = 1.07053 loss)
+I0801 02:23:55.633885  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.17137 (* 0.3 = 2.15141 loss)
+I0801 02:23:55.656139  2097 solver.cpp:218] Iteration 640 (9.68958 iter/s, 1.03204s/10 iters), loss = 3.23086
+I0801 02:23:55.656157  2097 solver.cpp:237]     Train net output #0: loss = 1.53794 (* 0.7 = 1.07656 loss)
+I0801 02:23:55.656162  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.181 (* 0.3 = 2.1543 loss)
+I0801 02:23:55.656167  2097 sgd_solver.cpp:105] Iteration 640, lr = 0.001
+I0801 02:23:55.846187  2097 solver.cpp:330] Iteration 650, Testing net (#0)
+I0801 02:23:56.632767  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:56.664044  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4372
+I0801 02:23:56.664068  2097 solver.cpp:397]     Test net output #1: loss = 1.56599 (* 0.7 = 1.09619 loss)
+I0801 02:23:56.664072  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.16608 (* 0.3 = 2.14982 loss)
+I0801 02:23:56.686450  2097 solver.cpp:218] Iteration 650 (9.7068 iter/s, 1.03021s/10 iters), loss = 3.31962
+I0801 02:23:56.686470  2097 solver.cpp:237]     Train net output #0: loss = 1.65675 (* 0.7 = 1.15973 loss)
+I0801 02:23:56.686475  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.19966 (* 0.3 = 2.1599 loss)
+I0801 02:23:56.686478  2097 sgd_solver.cpp:105] Iteration 650, lr = 0.001
+I0801 02:23:56.876957  2097 solver.cpp:330] Iteration 660, Testing net (#0)
+I0801 02:23:57.666913  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:57.697808  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4219
+I0801 02:23:57.697830  2097 solver.cpp:397]     Test net output #1: loss = 1.57212 (* 0.7 = 1.10048 loss)
+I0801 02:23:57.697834  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.17533 (* 0.3 = 2.1526 loss)
+I0801 02:23:57.720649  2097 solver.cpp:218] Iteration 660 (9.67035 iter/s, 1.03409s/10 iters), loss = 3.24457
+I0801 02:23:57.720671  2097 solver.cpp:237]     Train net output #0: loss = 1.56213 (* 0.7 = 1.09349 loss)
+I0801 02:23:57.720676  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.17025 (* 0.3 = 2.15107 loss)
+I0801 02:23:57.720679  2097 sgd_solver.cpp:105] Iteration 660, lr = 0.001
+I0801 02:23:57.910871  2097 solver.cpp:330] Iteration 670, Testing net (#0)
+I0801 02:23:58.699079  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:58.730666  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4317
+I0801 02:23:58.730690  2097 solver.cpp:397]     Test net output #1: loss = 1.54523 (* 0.7 = 1.08166 loss)
+I0801 02:23:58.730693  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.15913 (* 0.3 = 2.14774 loss)
+I0801 02:23:58.753242  2097 solver.cpp:218] Iteration 670 (9.6854 iter/s, 1.03248s/10 iters), loss = 3.19924
+I0801 02:23:58.753278  2097 solver.cpp:237]     Train net output #0: loss = 1.50557 (* 0.7 = 1.0539 loss)
+I0801 02:23:58.753283  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.15113 (* 0.3 = 2.14534 loss)
+I0801 02:23:58.753288  2097 sgd_solver.cpp:105] Iteration 670, lr = 0.001
+I0801 02:23:58.942909  2097 solver.cpp:330] Iteration 680, Testing net (#0)
+I0801 02:23:59.728085  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:23:59.759084  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4353
+I0801 02:23:59.759107  2097 solver.cpp:397]     Test net output #1: loss = 1.54401 (* 0.7 = 1.0808 loss)
+I0801 02:23:59.759111  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.16008 (* 0.3 = 2.14802 loss)
+I0801 02:23:59.782063  2097 solver.cpp:218] Iteration 680 (9.72107 iter/s, 1.02869s/10 iters), loss = 3.11642
+I0801 02:23:59.782085  2097 solver.cpp:237]     Train net output #0: loss = 1.39168 (* 0.7 = 0.974175 loss)
+I0801 02:23:59.782090  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.14081 (* 0.3 = 2.14224 loss)
+I0801 02:23:59.782094  2097 sgd_solver.cpp:105] Iteration 680, lr = 0.001
+I0801 02:23:59.972784  2097 solver.cpp:330] Iteration 690, Testing net (#0)
+I0801 02:24:00.756568  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:00.786361  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4507
+I0801 02:24:00.786382  2097 solver.cpp:397]     Test net output #1: loss = 1.51948 (* 0.7 = 1.06364 loss)
+I0801 02:24:00.786386  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.16144 (* 0.3 = 2.14843 loss)
+I0801 02:24:00.809062  2097 solver.cpp:218] Iteration 690 (9.73819 iter/s, 1.02688s/10 iters), loss = 3.20999
+I0801 02:24:00.809092  2097 solver.cpp:237]     Train net output #0: loss = 1.52272 (* 0.7 = 1.0659 loss)
+I0801 02:24:00.809098  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.14697 (* 0.3 = 2.14409 loss)
+I0801 02:24:00.809103  2097 sgd_solver.cpp:105] Iteration 690, lr = 0.001
+I0801 02:24:00.999789  2097 solver.cpp:330] Iteration 700, Testing net (#0)
+I0801 02:24:01.794395  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:01.825547  2097 solver.cpp:397]     Test net output #0: accuracy = 0.45
+I0801 02:24:01.825572  2097 solver.cpp:397]     Test net output #1: loss = 1.49883 (* 0.7 = 1.04918 loss)
+I0801 02:24:01.825575  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.15524 (* 0.3 = 2.14657 loss)
+I0801 02:24:01.848428  2097 solver.cpp:218] Iteration 700 (9.62233 iter/s, 1.03925s/10 iters), loss = 3.24331
+I0801 02:24:01.848451  2097 solver.cpp:237]     Train net output #0: loss = 1.56108 (* 0.7 = 1.09276 loss)
+I0801 02:24:01.848455  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.16851 (* 0.3 = 2.15055 loss)
+I0801 02:24:01.848460  2097 sgd_solver.cpp:105] Iteration 700, lr = 0.001
+I0801 02:24:02.038918  2097 solver.cpp:330] Iteration 710, Testing net (#0)
+I0801 02:24:02.825546  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:02.856740  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4491
+I0801 02:24:02.856762  2097 solver.cpp:397]     Test net output #1: loss = 1.50571 (* 0.7 = 1.05399 loss)
+I0801 02:24:02.856766  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.13996 (* 0.3 = 2.14199 loss)
+I0801 02:24:02.879618  2097 solver.cpp:218] Iteration 710 (9.69858 iter/s, 1.03108s/10 iters), loss = 3.20073
+I0801 02:24:02.879643  2097 solver.cpp:237]     Train net output #0: loss = 1.50583 (* 0.7 = 1.05408 loss)
+I0801 02:24:02.879647  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.1555 (* 0.3 = 2.14665 loss)
+I0801 02:24:02.879652  2097 sgd_solver.cpp:105] Iteration 710, lr = 0.001
+I0801 02:24:03.069770  2097 solver.cpp:330] Iteration 720, Testing net (#0)
+I0801 02:24:03.853039  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:03.884194  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4647
+I0801 02:24:03.884218  2097 solver.cpp:397]     Test net output #1: loss = 1.46426 (* 0.7 = 1.02498 loss)
+I0801 02:24:03.884245  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.14358 (* 0.3 = 2.14307 loss)
+I0801 02:24:03.906481  2097 solver.cpp:218] Iteration 720 (9.73948 iter/s, 1.02675s/10 iters), loss = 3.14339
+I0801 02:24:03.906499  2097 solver.cpp:237]     Train net output #0: loss = 1.4322 (* 0.7 = 1.00254 loss)
+I0801 02:24:03.906503  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.13616 (* 0.3 = 2.14085 loss)
+I0801 02:24:03.906507  2097 sgd_solver.cpp:105] Iteration 720, lr = 0.001
+I0801 02:24:04.097343  2097 solver.cpp:330] Iteration 730, Testing net (#0)
+I0801 02:24:04.896672  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:04.927179  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4459
+I0801 02:24:04.927202  2097 solver.cpp:397]     Test net output #1: loss = 1.52198 (* 0.7 = 1.06538 loss)
+I0801 02:24:04.927207  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.15502 (* 0.3 = 2.14651 loss)
+I0801 02:24:04.949489  2097 solver.cpp:218] Iteration 730 (9.58863 iter/s, 1.0429s/10 iters), loss = 3.26871
+I0801 02:24:04.949508  2097 solver.cpp:237]     Train net output #0: loss = 1.59278 (* 0.7 = 1.11494 loss)
+I0801 02:24:04.949512  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.17922 (* 0.3 = 2.15376 loss)
+I0801 02:24:04.949517  2097 sgd_solver.cpp:105] Iteration 730, lr = 0.001
+I0801 02:24:05.139106  2097 solver.cpp:330] Iteration 740, Testing net (#0)
+I0801 02:24:05.929312  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:05.960697  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4324
+I0801 02:24:05.960721  2097 solver.cpp:397]     Test net output #1: loss = 1.54217 (* 0.7 = 1.07952 loss)
+I0801 02:24:05.960726  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.15119 (* 0.3 = 2.14536 loss)
+I0801 02:24:05.983223  2097 solver.cpp:218] Iteration 740 (9.67467 iter/s, 1.03363s/10 iters), loss = 3.19207
+I0801 02:24:05.983242  2097 solver.cpp:237]     Train net output #0: loss = 1.49144 (* 0.7 = 1.044 loss)
+I0801 02:24:05.983247  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.16022 (* 0.3 = 2.14807 loss)
+I0801 02:24:05.983250  2097 sgd_solver.cpp:105] Iteration 740, lr = 0.001
+I0801 02:24:06.173169  2097 solver.cpp:330] Iteration 750, Testing net (#0)
+I0801 02:24:06.955075  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:06.985594  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4528
+I0801 02:24:06.985617  2097 solver.cpp:397]     Test net output #1: loss = 1.50943 (* 0.7 = 1.0566 loss)
+I0801 02:24:06.985621  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.15575 (* 0.3 = 2.14672 loss)
+I0801 02:24:07.008332  2097 solver.cpp:218] Iteration 750 (9.75613 iter/s, 1.025s/10 iters), loss = 3.1818
+I0801 02:24:07.008365  2097 solver.cpp:237]     Train net output #0: loss = 1.47397 (* 0.7 = 1.03178 loss)
+I0801 02:24:07.008370  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.16672 (* 0.3 = 2.15002 loss)
+I0801 02:24:07.008375  2097 sgd_solver.cpp:105] Iteration 750, lr = 0.001
+I0801 02:24:07.198679  2097 solver.cpp:330] Iteration 760, Testing net (#0)
+I0801 02:24:07.987897  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:08.018839  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4505
+I0801 02:24:08.018862  2097 solver.cpp:397]     Test net output #1: loss = 1.54152 (* 0.7 = 1.07906 loss)
+I0801 02:24:08.018864  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.13956 (* 0.3 = 2.14187 loss)
+I0801 02:24:08.041530  2097 solver.cpp:218] Iteration 760 (9.67983 iter/s, 1.03308s/10 iters), loss = 3.04428
+I0801 02:24:08.041556  2097 solver.cpp:237]     Train net output #0: loss = 1.30704 (* 0.7 = 0.914931 loss)
+I0801 02:24:08.041560  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.09784 (* 0.3 = 2.12935 loss)
+I0801 02:24:08.041564  2097 sgd_solver.cpp:105] Iteration 760, lr = 0.001
+I0801 02:24:08.232024  2097 solver.cpp:330] Iteration 770, Testing net (#0)
+I0801 02:24:09.017840  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:09.048748  2097 solver.cpp:397]     Test net output #0: accuracy = 0.416
+I0801 02:24:09.048769  2097 solver.cpp:397]     Test net output #1: loss = 1.58914 (* 0.7 = 1.1124 loss)
+I0801 02:24:09.048774  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.17129 (* 0.3 = 2.15139 loss)
+I0801 02:24:09.071624  2097 solver.cpp:218] Iteration 770 (9.70895 iter/s, 1.02998s/10 iters), loss = 3.26039
+I0801 02:24:09.071645  2097 solver.cpp:237]     Train net output #0: loss = 1.58294 (* 0.7 = 1.10806 loss)
+I0801 02:24:09.071650  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.17442 (* 0.3 = 2.15233 loss)
+I0801 02:24:09.071653  2097 sgd_solver.cpp:105] Iteration 770, lr = 0.001
+I0801 02:24:09.262176  2097 solver.cpp:330] Iteration 780, Testing net (#0)
+I0801 02:24:10.049218  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:10.080035  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4385
+I0801 02:24:10.080058  2097 solver.cpp:397]     Test net output #1: loss = 1.54245 (* 0.7 = 1.07972 loss)
+I0801 02:24:10.080062  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.1575 (* 0.3 = 2.14725 loss)
+I0801 02:24:10.102732  2097 solver.cpp:218] Iteration 780 (9.69935 iter/s, 1.031s/10 iters), loss = 3.22146
+I0801 02:24:10.102757  2097 solver.cpp:237]     Train net output #0: loss = 1.52842 (* 0.7 = 1.0699 loss)
+I0801 02:24:10.102762  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.17187 (* 0.3 = 2.15156 loss)
+I0801 02:24:10.102766  2097 sgd_solver.cpp:105] Iteration 780, lr = 0.001
+I0801 02:24:10.292995  2097 solver.cpp:330] Iteration 790, Testing net (#0)
+I0801 02:24:11.079219  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:11.110626  2097 solver.cpp:397]     Test net output #0: accuracy = 0.447
+I0801 02:24:11.110857  2097 solver.cpp:397]     Test net output #1: loss = 1.51457 (* 0.7 = 1.0602 loss)
+I0801 02:24:11.110862  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.15278 (* 0.3 = 2.14583 loss)
+I0801 02:24:11.133659  2097 solver.cpp:218] Iteration 790 (9.70109 iter/s, 1.03081s/10 iters), loss = 3.25571
+I0801 02:24:11.133685  2097 solver.cpp:237]     Train net output #0: loss = 1.58254 (* 0.7 = 1.10778 loss)
+I0801 02:24:11.133689  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.15976 (* 0.3 = 2.14793 loss)
+I0801 02:24:11.133693  2097 sgd_solver.cpp:105] Iteration 790, lr = 0.001
+I0801 02:24:11.325639  2097 solver.cpp:330] Iteration 800, Testing net (#0)
+I0801 02:24:12.113111  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:12.142943  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4536
+I0801 02:24:12.142967  2097 solver.cpp:397]     Test net output #1: loss = 1.51917 (* 0.7 = 1.06342 loss)
+I0801 02:24:12.142971  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.13728 (* 0.3 = 2.14118 loss)
+I0801 02:24:12.165638  2097 solver.cpp:218] Iteration 800 (9.69123 iter/s, 1.03186s/10 iters), loss = 3.10516
+I0801 02:24:12.165668  2097 solver.cpp:237]     Train net output #0: loss = 1.39283 (* 0.7 = 0.974982 loss)
+I0801 02:24:12.165673  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.10058 (* 0.3 = 2.13017 loss)
+I0801 02:24:12.165678  2097 sgd_solver.cpp:105] Iteration 800, lr = 0.001
+I0801 02:24:12.355778  2097 solver.cpp:330] Iteration 810, Testing net (#0)
+I0801 02:24:13.138068  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:13.169194  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4555
+I0801 02:24:13.169217  2097 solver.cpp:397]     Test net output #1: loss = 1.47479 (* 0.7 = 1.03235 loss)
+I0801 02:24:13.169221  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.14062 (* 0.3 = 2.14219 loss)
+I0801 02:24:13.191416  2097 solver.cpp:218] Iteration 810 (9.7498 iter/s, 1.02566s/10 iters), loss = 3.09276
+I0801 02:24:13.191435  2097 solver.cpp:237]     Train net output #0: loss = 1.36781 (* 0.7 = 0.957469 loss)
+I0801 02:24:13.191440  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.11764 (* 0.3 = 2.13529 loss)
+I0801 02:24:13.191462  2097 sgd_solver.cpp:105] Iteration 810, lr = 0.001
+I0801 02:24:13.381980  2097 solver.cpp:330] Iteration 820, Testing net (#0)
+I0801 02:24:14.172962  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:14.203876  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4765
+I0801 02:24:14.203900  2097 solver.cpp:397]     Test net output #1: loss = 1.44684 (* 0.7 = 1.01279 loss)
+I0801 02:24:14.203904  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.14322 (* 0.3 = 2.14297 loss)
+I0801 02:24:14.226449  2097 solver.cpp:218] Iteration 820 (9.66261 iter/s, 1.03492s/10 iters), loss = 3.18975
+I0801 02:24:14.226480  2097 solver.cpp:237]     Train net output #0: loss = 1.50198 (* 0.7 = 1.05138 loss)
+I0801 02:24:14.226485  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.12788 (* 0.3 = 2.13837 loss)
+I0801 02:24:14.226490  2097 sgd_solver.cpp:105] Iteration 820, lr = 0.001
+I0801 02:24:14.418706  2097 solver.cpp:330] Iteration 830, Testing net (#0)
+I0801 02:24:15.204814  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:15.236145  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4486
+I0801 02:24:15.236168  2097 solver.cpp:397]     Test net output #1: loss = 1.51734 (* 0.7 = 1.06214 loss)
+I0801 02:24:15.236172  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.14255 (* 0.3 = 2.14276 loss)
+I0801 02:24:15.258332  2097 solver.cpp:218] Iteration 830 (9.70225 iter/s, 1.03069s/10 iters), loss = 3.41011
+I0801 02:24:15.258350  2097 solver.cpp:237]     Train net output #0: loss = 1.78886 (* 0.7 = 1.25221 loss)
+I0801 02:24:15.258355  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.19301 (* 0.3 = 2.1579 loss)
+I0801 02:24:15.258359  2097 sgd_solver.cpp:105] Iteration 830, lr = 0.001
+I0801 02:24:15.448909  2097 solver.cpp:330] Iteration 840, Testing net (#0)
+I0801 02:24:16.228678  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:16.261930  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4689
+I0801 02:24:16.261955  2097 solver.cpp:397]     Test net output #1: loss = 1.47153 (* 0.7 = 1.03007 loss)
+I0801 02:24:16.261958  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.15675 (* 0.3 = 2.14703 loss)
+I0801 02:24:16.284301  2097 solver.cpp:218] Iteration 840 (9.74789 iter/s, 1.02586s/10 iters), loss = 3.16768
+I0801 02:24:16.284318  2097 solver.cpp:237]     Train net output #0: loss = 1.45581 (* 0.7 = 1.01907 loss)
+I0801 02:24:16.284322  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.16203 (* 0.3 = 2.14861 loss)
+I0801 02:24:16.284327  2097 sgd_solver.cpp:105] Iteration 840, lr = 0.001
+I0801 02:24:16.475188  2097 solver.cpp:330] Iteration 850, Testing net (#0)
+I0801 02:24:17.271205  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:17.295523  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4687
+I0801 02:24:17.295552  2097 solver.cpp:397]     Test net output #1: loss = 1.4717 (* 0.7 = 1.03019 loss)
+I0801 02:24:17.295557  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.13525 (* 0.3 = 2.14058 loss)
+I0801 02:24:17.319664  2097 solver.cpp:218] Iteration 850 (9.65945 iter/s, 1.03526s/10 iters), loss = 3.10948
+I0801 02:24:17.319691  2097 solver.cpp:237]     Train net output #0: loss = 1.39501 (* 0.7 = 0.976504 loss)
+I0801 02:24:17.319696  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.10991 (* 0.3 = 2.13297 loss)
+I0801 02:24:17.319700  2097 sgd_solver.cpp:105] Iteration 850, lr = 0.001
+I0801 02:24:17.510087  2097 solver.cpp:330] Iteration 860, Testing net (#0)
+I0801 02:24:18.300539  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:18.331519  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4744
+I0801 02:24:18.331543  2097 solver.cpp:397]     Test net output #1: loss = 1.45901 (* 0.7 = 1.02131 loss)
+I0801 02:24:18.331547  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.12646 (* 0.3 = 2.13794 loss)
+I0801 02:24:18.353651  2097 solver.cpp:218] Iteration 860 (9.67237 iter/s, 1.03387s/10 iters), loss = 3.23317
+I0801 02:24:18.353667  2097 solver.cpp:237]     Train net output #0: loss = 1.55869 (* 0.7 = 1.09108 loss)
+I0801 02:24:18.353672  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.14029 (* 0.3 = 2.14209 loss)
+I0801 02:24:18.353677  2097 sgd_solver.cpp:105] Iteration 860, lr = 0.001
+I0801 02:24:18.543476  2097 solver.cpp:330] Iteration 870, Testing net (#0)
+I0801 02:24:19.325364  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:19.356534  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4652
+I0801 02:24:19.356555  2097 solver.cpp:397]     Test net output #1: loss = 1.48325 (* 0.7 = 1.03828 loss)
+I0801 02:24:19.356559  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.12977 (* 0.3 = 2.13893 loss)
+I0801 02:24:19.379050  2097 solver.cpp:218] Iteration 870 (9.75333 iter/s, 1.02529s/10 iters), loss = 3.14232
+I0801 02:24:19.379072  2097 solver.cpp:237]     Train net output #0: loss = 1.43735 (* 0.7 = 1.00614 loss)
+I0801 02:24:19.379077  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.12058 (* 0.3 = 2.13617 loss)
+I0801 02:24:19.379081  2097 sgd_solver.cpp:105] Iteration 870, lr = 0.001
+I0801 02:24:19.569880  2097 solver.cpp:330] Iteration 880, Testing net (#0)
+I0801 02:24:20.358865  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:20.389845  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4749
+I0801 02:24:20.389868  2097 solver.cpp:397]     Test net output #1: loss = 1.45266 (* 0.7 = 1.01686 loss)
+I0801 02:24:20.389871  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.14081 (* 0.3 = 2.14224 loss)
+I0801 02:24:20.412402  2097 solver.cpp:218] Iteration 880 (9.67828 iter/s, 1.03324s/10 iters), loss = 3.13765
+I0801 02:24:20.412421  2097 solver.cpp:237]     Train net output #0: loss = 1.41556 (* 0.7 = 0.990894 loss)
+I0801 02:24:20.412425  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.15586 (* 0.3 = 2.14676 loss)
+I0801 02:24:20.412430  2097 sgd_solver.cpp:105] Iteration 880, lr = 0.001
+I0801 02:24:20.602749  2097 solver.cpp:330] Iteration 890, Testing net (#0)
+I0801 02:24:21.389710  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:21.420436  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4567
+I0801 02:24:21.420460  2097 solver.cpp:397]     Test net output #1: loss = 1.48485 (* 0.7 = 1.03939 loss)
+I0801 02:24:21.420464  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.13874 (* 0.3 = 2.14162 loss)
+I0801 02:24:21.442790  2097 solver.cpp:218] Iteration 890 (9.70612 iter/s, 1.03028s/10 iters), loss = 3.19198
+I0801 02:24:21.442812  2097 solver.cpp:237]     Train net output #0: loss = 1.50612 (* 0.7 = 1.05428 loss)
+I0801 02:24:21.442817  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.12566 (* 0.3 = 2.1377 loss)
+I0801 02:24:21.442821  2097 sgd_solver.cpp:105] Iteration 890, lr = 0.001
+I0801 02:24:21.632321  2097 solver.cpp:330] Iteration 900, Testing net (#0)
+I0801 02:24:22.417438  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:22.448379  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4724
+I0801 02:24:22.448403  2097 solver.cpp:397]     Test net output #1: loss = 1.44021 (* 0.7 = 1.00815 loss)
+I0801 02:24:22.448407  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.12783 (* 0.3 = 2.13835 loss)
+I0801 02:24:22.470685  2097 solver.cpp:218] Iteration 900 (9.72965 iter/s, 1.02779s/10 iters), loss = 3.0403
+I0801 02:24:22.470700  2097 solver.cpp:237]     Train net output #0: loss = 1.30272 (* 0.7 = 0.911901 loss)
+I0801 02:24:22.470705  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.09466 (* 0.3 = 2.1284 loss)
+I0801 02:24:22.470710  2097 sgd_solver.cpp:105] Iteration 900, lr = 0.001
+I0801 02:24:22.661567  2097 solver.cpp:330] Iteration 910, Testing net (#0)
+I0801 02:24:23.449532  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:23.480638  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4777
+I0801 02:24:23.480662  2097 solver.cpp:397]     Test net output #1: loss = 1.44463 (* 0.7 = 1.01124 loss)
+I0801 02:24:23.480666  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.12217 (* 0.3 = 2.13665 loss)
+I0801 02:24:23.502833  2097 solver.cpp:218] Iteration 910 (9.68951 iter/s, 1.03204s/10 iters), loss = 3.18082
+I0801 02:24:23.502851  2097 solver.cpp:237]     Train net output #0: loss = 1.48281 (* 0.7 = 1.03796 loss)
+I0801 02:24:23.502856  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.14284 (* 0.3 = 2.14285 loss)
+I0801 02:24:23.502861  2097 sgd_solver.cpp:105] Iteration 910, lr = 0.001
+I0801 02:24:23.693449  2097 solver.cpp:330] Iteration 920, Testing net (#0)
+I0801 02:24:24.478502  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:24.509625  2097 solver.cpp:397]     Test net output #0: accuracy = 0.466
+I0801 02:24:24.509649  2097 solver.cpp:397]     Test net output #1: loss = 1.45564 (* 0.7 = 1.01895 loss)
+I0801 02:24:24.509654  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.13064 (* 0.3 = 2.13919 loss)
+I0801 02:24:24.531818  2097 solver.cpp:218] Iteration 920 (9.71931 iter/s, 1.02888s/10 iters), loss = 3.23946
+I0801 02:24:24.531836  2097 solver.cpp:237]     Train net output #0: loss = 1.56085 (* 0.7 = 1.0926 loss)
+I0801 02:24:24.531841  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.15621 (* 0.3 = 2.14686 loss)
+I0801 02:24:24.531846  2097 sgd_solver.cpp:105] Iteration 920, lr = 0.001
+I0801 02:24:24.721999  2097 solver.cpp:330] Iteration 930, Testing net (#0)
+I0801 02:24:25.502665  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:25.533679  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4909
+I0801 02:24:25.533702  2097 solver.cpp:397]     Test net output #1: loss = 1.43768 (* 0.7 = 1.00638 loss)
+I0801 02:24:25.533707  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.13747 (* 0.3 = 2.14124 loss)
+I0801 02:24:25.556017  2097 solver.cpp:218] Iteration 930 (9.76473 iter/s, 1.02409s/10 iters), loss = 3.14779
+I0801 02:24:25.556035  2097 solver.cpp:237]     Train net output #0: loss = 1.43543 (* 0.7 = 1.0048 loss)
+I0801 02:24:25.556040  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.14329 (* 0.3 = 2.14299 loss)
+I0801 02:24:25.556044  2097 sgd_solver.cpp:105] Iteration 930, lr = 0.001
+I0801 02:24:25.746515  2097 solver.cpp:330] Iteration 940, Testing net (#0)
+I0801 02:24:26.535404  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:26.566215  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4773
+I0801 02:24:26.566241  2097 solver.cpp:397]     Test net output #1: loss = 1.42717 (* 0.7 = 0.99902 loss)
+I0801 02:24:26.566246  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.1251 (* 0.3 = 2.13753 loss)
+I0801 02:24:26.589150  2097 solver.cpp:218] Iteration 940 (9.68031 iter/s, 1.03302s/10 iters), loss = 3.21479
+I0801 02:24:26.589176  2097 solver.cpp:237]     Train net output #0: loss = 1.52286 (* 0.7 = 1.066 loss)
+I0801 02:24:26.589181  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.16264 (* 0.3 = 2.14879 loss)
+I0801 02:24:26.589185  2097 sgd_solver.cpp:105] Iteration 940, lr = 0.001
+I0801 02:24:26.780431  2097 solver.cpp:330] Iteration 950, Testing net (#0)
+I0801 02:24:27.567962  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:27.599462  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4915
+I0801 02:24:27.599484  2097 solver.cpp:397]     Test net output #1: loss = 1.42094 (* 0.7 = 0.994659 loss)
+I0801 02:24:27.599488  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.14123 (* 0.3 = 2.14237 loss)
+I0801 02:24:27.621855  2097 solver.cpp:218] Iteration 950 (9.68438 iter/s, 1.03259s/10 iters), loss = 2.8926
+I0801 02:24:27.621879  2097 solver.cpp:237]     Train net output #0: loss = 1.10592 (* 0.7 = 0.774147 loss)
+I0801 02:24:27.621883  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.06151 (* 0.3 = 2.11845 loss)
+I0801 02:24:27.621887  2097 sgd_solver.cpp:105] Iteration 950, lr = 0.001
+I0801 02:24:27.812306  2097 solver.cpp:330] Iteration 960, Testing net (#0)
+I0801 02:24:28.594491  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:28.625721  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4632
+I0801 02:24:28.625746  2097 solver.cpp:397]     Test net output #1: loss = 1.46975 (* 0.7 = 1.02882 loss)
+I0801 02:24:28.625751  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.13333 (* 0.3 = 2.14 loss)
+I0801 02:24:28.648263  2097 solver.cpp:218] Iteration 960 (9.74376 iter/s, 1.0263s/10 iters), loss = 3.08824
+I0801 02:24:28.648282  2097 solver.cpp:237]     Train net output #0: loss = 1.35466 (* 0.7 = 0.948262 loss)
+I0801 02:24:28.648303  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.13326 (* 0.3 = 2.13998 loss)
+I0801 02:24:28.648308  2097 sgd_solver.cpp:105] Iteration 960, lr = 0.001
+I0801 02:24:28.839478  2097 solver.cpp:330] Iteration 970, Testing net (#0)
+I0801 02:24:29.629684  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:29.661082  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4956
+I0801 02:24:29.661110  2097 solver.cpp:397]     Test net output #1: loss = 1.41384 (* 0.7 = 0.989685 loss)
+I0801 02:24:29.661115  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.12643 (* 0.3 = 2.13793 loss)
+I0801 02:24:29.683385  2097 solver.cpp:218] Iteration 970 (9.6617 iter/s, 1.03501s/10 iters), loss = 3.17044
+I0801 02:24:29.683404  2097 solver.cpp:237]     Train net output #0: loss = 1.46599 (* 0.7 = 1.0262 loss)
+I0801 02:24:29.683409  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.14747 (* 0.3 = 2.14424 loss)
+I0801 02:24:29.683413  2097 sgd_solver.cpp:105] Iteration 970, lr = 0.001
+I0801 02:24:29.874179  2097 solver.cpp:330] Iteration 980, Testing net (#0)
+I0801 02:24:30.664582  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:30.695565  2097 solver.cpp:397]     Test net output #0: accuracy = 0.4562
+I0801 02:24:30.695587  2097 solver.cpp:397]     Test net output #1: loss = 1.50446 (* 0.7 = 1.05312 loss)
+I0801 02:24:30.695591  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.13421 (* 0.3 = 2.14026 loss)
+I0801 02:24:30.718363  2097 solver.cpp:218] Iteration 980 (9.66307 iter/s, 1.03487s/10 iters), loss = 3.43433
+I0801 02:24:30.718387  2097 solver.cpp:237]     Train net output #0: loss = 1.82797 (* 0.7 = 1.27958 loss)
+I0801 02:24:30.718392  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.1825 (* 0.3 = 2.15475 loss)
+I0801 02:24:30.718396  2097 sgd_solver.cpp:105] Iteration 980, lr = 0.001
+I0801 02:24:30.909446  2097 solver.cpp:330] Iteration 990, Testing net (#0)
+I0801 02:24:31.693778  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:31.724313  2097 solver.cpp:397]     Test net output #0: accuracy = 0.5049
+I0801 02:24:31.724334  2097 solver.cpp:397]     Test net output #1: loss = 1.40682 (* 0.7 = 0.984772 loss)
+I0801 02:24:31.724337  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.12857 (* 0.3 = 2.13857 loss)
+I0801 02:24:31.747351  2097 solver.cpp:218] Iteration 990 (9.71935 iter/s, 1.02888s/10 iters), loss = 3.1463
+I0801 02:24:31.747375  2097 solver.cpp:237]     Train net output #0: loss = 1.43827 (* 0.7 = 1.00679 loss)
+I0801 02:24:31.747380  2097 solver.cpp:237]     Train net output #1: ts_loss = 7.13169 (* 0.3 = 2.13951 loss)
+I0801 02:24:31.747385  2097 sgd_solver.cpp:105] Iteration 990, lr = 0.001
+I0801 02:24:31.865331  2103 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:31.940174  2097 solver.cpp:447] Snapshotting to binary proto file ts_cifar10/_iter_1000.caffemodel
+I0801 02:24:31.956262  2097 sgd_solver.cpp:273] Snapshotting solver state to binary proto file ts_cifar10/_iter_1000.solverstate
+I0801 02:24:31.979686  2097 solver.cpp:310] Iteration 1000, loss = 3.1315
+I0801 02:24:31.979704  2097 solver.cpp:330] Iteration 1000, Testing net (#0)
+I0801 02:24:32.753012  2104 data_layer.cpp:73] Restarting data prefetching from start.
+I0801 02:24:32.784308  2097 solver.cpp:397]     Test net output #0: accuracy = 0.5072
+I0801 02:24:32.784330  2097 solver.cpp:397]     Test net output #1: loss = 1.38586 (* 0.7 = 0.9701 loss)
+I0801 02:24:32.784334  2097 solver.cpp:397]     Test net output #2: ts_loss = 7.12197 (* 0.3 = 2.13659 loss)
+I0801 02:24:32.784337  2097 solver.cpp:315] Optimization Done.
+I0801 02:24:32.784339  2097 caffe.cpp:259] Optimization Done.
