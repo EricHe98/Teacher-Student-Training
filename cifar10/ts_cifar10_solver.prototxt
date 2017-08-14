@@ -2,7 +2,7 @@
 # then another factor of 10 after 10 more epochs (5000 iters)
 
 # The train/test net protocol buffer definition
-net: "ts_cifar10.prototxt"
+net: "Teacher-Student-Training/cifar10/ts_cifar10.prototxt"
 # test_iter specifies how many forward passes the test should carry out.
 # In the case of CIFAR10, we have test batch size 100 and 100 test iterations,
 # covering the full 10,000 testing images.

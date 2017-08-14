@@ -8,10 +8,10 @@ layer {
     phase: TRAIN
   }
   transform_param {
-    mean_file: "/opt/caffe/examples/cifar10/mean.binaryproto"
+    mean_file: "/home/ubuntu/caffe/examples/cifar10/mean.binaryproto"
   }
   data_param {
-    source: "/opt/caffe/examples/cifar10/cifar10_train_lmdb"
+    source: "/home/ubuntu/caffe/examples/cifar10/cifar10_train_lmdb"
     batch_size: 100
     backend: LMDB
   }
@@ -25,10 +25,10 @@ layer {
     phase: TEST
   }
   transform_param {
-    mean_file: "/opt/caffe/examples/cifar10/mean.binaryproto"
+    mean_file: "/home/ubuntu/caffe/examples/cifar10/mean.binaryproto"
   }
   data_param {
-    source: "/opt/caffe/examples/cifar10/cifar10_test_lmdb"
+    source: "/home/ubuntu/caffe/examples/cifar10/cifar10_test_lmdb"
     batch_size: 100
     backend: LMDB
   }
@@ -407,7 +407,7 @@ layer {
   bottom: "sm_s_1"
   bottom: "sm_t_1"
   top: "ts_loss"
-  loss_weight: .1
+  loss_weight: .5
 }
 layer {
   name: "loss"
@@ -415,5 +415,5 @@ layer {
   bottom: "ip_s_1"
   bottom: "label"
   top: "loss"
-  loss_weight: .9
+  loss_weight: .5
 }
