@@ -1,0 +1,169 @@
+---
+title: "TS_Learning"
+author: "Eric He"
+date: "August 1, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(stringr)
+library(purrr)
+library(ggplot2)
+library(reshape2)
+library(rlist)
+library(gridExtra)
+```
+
+```{r}
+accuracy_extractor <- function(file){readLines(file) %>% 
+  str_c(collapse = " ") %>%
+  str_extract_all(test, pattern = "(?<=accuracy = )[01234567890.]+") %>%
+  unlist() %>%
+  as.numeric()}
+
+extractor <- function(file, type){readLines(file) %>% 
+  str_c(collapse = " ") %>%
+  str_extract_all(pattern = paste("(?<=Test net output #[012]: ", type, " = )[01234567890.]+", sep = "")) %>%
+  unlist() %>%
+  as.numeric()}
+
+framer <- function(file, max_iter){
+  frame <- map(c("accuracy", "loss", "ts_loss"), extractor, file = file) %>%
+    map(function(x){x / max(1, max(x))}) %>%
+    list.cbind()
+  iter <- seq(from = 0, to = max_iter, length.out = nrow(frame))
+  frame <- data.frame(cbind(iter, frame))
+  colnames(frame) <- c("iter", "accuracy", "normalized_loss", "normalized_ts_loss")
+  frame <- melt(frame, id = "iter")
+  return(frame)
+}
+
+grapher <- function(file, max_iter){
+  frame <- map(c("accuracy", "loss", "ts_loss"), extractor, file = file) %>%
+    map(function(x){x / max(1, max(x))}) %>%
+    list.cbind()
+  iter <- seq(from = 0, to = max_iter, length.out = nrow(frame))
+  frame <- data.frame(cbind(iter, frame))
+  colnames(frame) <- c("iter", "accuracy", "normalized_loss", "normalized_ts_loss")
+  frame <- melt(frame, id = "iter")
+  ggplot(data = frame) +
+    geom_line(mapping = aes(x = iter, y = value, color = variable)) +
+    labs(x = "Iteration", y = "Percent", color = "Normalized Measure")
+}
+
+norm_grapher <- function(file, max_iter){
+  frame <- map(c("accuracy", "loss"), extractor, file = file) %>%
+    map(function(x){x / max(1, max(x))}) %>%
+    list.cbind()
+  iter <- seq(from = 0, to = max_iter, length.out = nrow(frame))
+  frame <- data.frame(cbind(iter, frame))
+  colnames(frame) <- c("iter", "accuracy", "normalized_loss")
+  frame <- melt(frame, id = "iter")
+  ggplot(data = frame) +
+    geom_line(mapping = aes(x = iter, y = value, color = variable)) +
+    labs(x = "iter", y = "percent")
+}
+```
+
+iter <- map(value_list, length) %>%
+    map(~ seq(from = 0, to = max_iter, length.out = .))
+elegant code im keeping here
+
+```{r}
+(files <- paste("output/output", c("_0", c(paste("-", c(1:10), sep = ""))), ".txt", sep = ""))
+```
+
+```{r}
+lr_rate <- map(files, extractor, type = "accuracy")
+```
+
+```{r}
+blah <- data.frame(lr_rate)
+colnames(blah) <- seq(0, 1, by = 0.1)
+iter <- seq(from = 0, to = 1000, by = 10)
+blah <- cbind(iter, blah)
+
+blah_long <- melt(blah, id = "iter", value.name = "accuracy")
+```
+
+```{r}
+ggplot(data = blah_long) +
+  geom_line(mapping = aes(x = iter, y = accuracy, color = variable)) +
+  labs(x = "Iteration", y = "Accuracy", color = "λ")
+ggsave("mnist_lambda_comparison.png")
+```
+
+```{r}
+mini <- extractor("output-mini.txt")
+ts_mini <- extractor("output-ts_mini.txt")
+iter_mini <- seq(0, 60000, by = 1000)
+lol <- data.frame(mini, ts_mini, iter_mini) %>%
+  melt(id = "iter_mini", value.name = "accuracy")
+```
+
+```{r}
+ggplot(data = lol) +
+  geom_line(mapping = aes(x = iter_mini, y = accuracy, color = variable)) +
+  labs(x = "Iteration", y = "Accuracy", color = "Model")
+ggsave("mini_comparison.png", width = 5, height = 3)
+```
+
+```{r}
+nin <- extractor("output-nin.txt")
+iter_nin <- seq(0, 30000, by = 500)
+nin_long <- data.frame(nin, iter_nin) %>%
+  melt(id = "iter_nin", value.name = "accuracy")
+```
+
+```{r}
+ggplot(data = nin_long) +
+  geom_line(mapping = aes(x = iter_nin, y = accuracy))
+```
+
+```{r}
+grapher(file = "output-nin.txt", step = 500, type = "accuracy")
+```
+
+```{r}
+grapher("output-nin.txt", 30000)
+ggsave("ts_nin_base.png", width = 5, height = 3)
+```
+
+```{r}
+grapher("output-nin2.txt", 120000)
+```
+
+```{r}
+grapher("output-20000.txt", 20000)
+ggsave("cifar10_ts.png")
+```
+
+```{r}
+plot1 <- grapher("output-lenet_base.txt", 5000) +
+  ggtitle("LeNet Trained on Ground Truth Labels")
+ggsave("mnist_ground_truth.png", width = 5, height = 3)
+```
+
+```{r}
+plot2 <- grapher("output-lenet_teach.txt", 5000) +
+  ggtitle("LeNet Trained on Teacher Soft Labels")
+ggsave("mnist_soft.png", width = 5, height = 3)
+```
+
+```{r}
+png("mnist_comparison.png", width = 1000, height = 600)
+plot3 <- grid.arrange(plot1, plot2, nrow = 2)
+dev.off()
+```
+
+```{r}
+norm_grapher("output_mnist_base.txt", 5000)
+```
+
+```{r}
+norm_grapher("output-noobnet.txt", 100000)
+```
