@@ -10,20 +10,14 @@ trained_VGG = caffe.Net("Teacher-Student-Training/imagenet/alexnet-VGG/vgg16_ori
 
 new_VGG = caffe.Net("Teacher-Student-Training/imagenet/alexnet-VGG/vgg16_original2.prototxt", caffe.TRAIN)
 
-# we load the first 4 convolutions
-mapping = {"conv1_1" : "conv1_1",
-		   "conv1_2" : "conv1_2",
-		   "conv2_1" : "conv2_1",
-		   "conv2_2" : "conv2_2",
-		   "conv3_1" : "conv3_1",
-		   "conv3_2" : "conv3_2",
-		   "conv3_3" : "conv3_3",
-		   "conv4_1" : "conv4_1",
-		   "conv4_2" : "conv4_2",
-		   "conv4_3" : "conv4_3",
-		   "conv5_1" : "conv5_1",
-		   "conv5_2" : "conv5_2",
-		   "conv5_3" : "conv5_3",}
+# The mapping dictionary moves the weights of the trained .caffemodel onto a new .caffemodel with different layer names.
+# In this case we map the first four convolution layers onto a new model with different layer names to avoid naming conflicts
+# should we try to load a second model with layer names "conv1_1", "conv1_2", etc.
+
+mapping = {"conv1_1" : "conv_st_1_1",
+		   "conv1_2" : "conv_st_1_2",
+		   "conv2_1" : "conv_st_2_1",
+		   "conv2_2" : "conv_st_2_2",}
 
 for i in range(0, len(mapping)):
 	trained = mapping.keys()[i]
