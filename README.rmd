@@ -8,6 +8,10 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+```{r echo=FALSE}
+library("purrr")
+```
+
 Executive Summary
 ----
 
@@ -138,20 +142,67 @@ The accuracy score rises highest for a lambda value of 0, which corresponds to a
 
 We find similar results on CIFAR10. The models converge using both training methods, but higher weightings on teacher-student training leads to slower and noisier training. 
 
+CIFAR10 GRAPHS HERE
 
+What is interesting here, however, is that using smaller lambda values on the teacher-student training yields better performance than normal training. In this graph, we can see that the lambda values of 0.1 and 0.05 surpass the performance of normal training. Since teacher-student cross entropy is larger than that of normal cross-entropy, a lambda value of 0.1 on the CIFAR10 dataset in fact corresponds to an approximately equal absolute weighting of the two loss functions; a lambda value of 0.5 corresponds to approximately a 67% weighting on the normal loss function and a 33% weighting on the teacher-student loss function.
 
-There are several possible reasons for this.
+OTHER CIFAR10 GRAPH HERE
+
+On the CIFAR10 dataset, it is possible to test the model compression hypothesis of teacher-student training. We do this by taking the neural network previously used for CIFAR10, and chopping off one of the 3 convolutional layers. 
+
+SLIDE HERE
+
+This smaller model, when trained on its own is able to achieve a 78% accuracy in 20000 iterations, whereas the original model reached between 80 and 81%. Below shows the standalone performance of the smaller model in comparison to the performance of a mini model trained using teacher-student loss at a lambda-value of 0.1 (roughly equal weighting).
+
+CIFAR10 MINI PERFORMANCE
+
+Again, we find an interesting result: the model trained using teacher-student loss outperforms the standalone model for the first 20000 iterations. After that, however, the standalone model surpasses the teacher-student model, and plateaus at 78%, with the teacher-student model plateaud at 77%. This test was run several times with matching results. This suggests that teacher-student loss does improve the model's ability to learn distinctions between classes - but only up to a point. Past that point, the student model is better off training on the hard labels.
+
+There are several possible reasons for why teacher-student training has poorer performance compared to normal training:
 
 1. The datasets are too small. Within only 1000 iterations, the model is able to achieve over 50% accuracy. This suggests that the dataset is not complex enough for the teacher model to impart fine distinctions between classes to the student models using the soft labels. Unlike Imagenet, which forces models to differentiate between extremely similar breeds of dog, the classes of MNIST are relatively straightforward and have few ambiguous images.
 
-2. The gradient updates resulting from teacher-student loss are too large and too slow to decrease. Recall that teacher-student loss is by nature larger than normal loss. Moreover, we have empirically found that the teacher-student loss barely decreases, staying at around 80% of its maximum size, whereas a normal loss might shrink down to 10% of its original size. These larger gradient updates may impact the model's ability to converge smoothly.
+2. The gradient updates resulting from teacher-student loss are too large and too slow to decrease. Recall that teacher-student loss is by nature larger than normal loss. Moreover, we have empirically found that the teacher-student loss barely decreases, staying at around 80% of its maximum size, whereas a normal loss might shrink down to 10% of its original size. These larger gradient updates may impact the model's ability to converge smoothly, especially during the later stages. 
 
-Moreover, When training a neural network, we expect to decrease the magnitude of the weight updates as the model trains. There are two ways this is done: first, by progressively decreasing the learning rate, we multiply the gradients by smaller and smaller fractions, directly resulting in smaller updates. The second way the update magnitudes drop is by having a natually decreasing loss. Because the teacher-student loss decreases very little during the training, it is possible that the weight updates are too large to allow the decision surface to converge to a local minimum.
+Moreover, when training a neural network, we expect to decrease the magnitude of the weight updates as the model trains. There are two ways this is done: first, by progressively decreasing the learning rate, we multiply the gradients by smaller and smaller fractions, directly resulting in smaller updates. The second way the update magnitudes drop is by having a natually decreasing loss. Because the teacher-student loss decreases very little during the training, it is possible that the weight updates are too large to allow the decision surface to converge to a local minimum. 
+
+This could be a reason why the standalone CIFAR10 mini model converged faster after 20000 iterations; a learning rate decrease allowed it to make finer gradient updates, which decreased the loss and which in turn allowed for even finer gradient updates. Meanwhile, the teacher-student loss magnitude remained relatively constant, forcing the model to wander around in search of a local minimum specific to the teacher decision surface.
 
 This hypothesis could be tested by using a much lower loss weighting on the teacher-student loss, and by increasing the rate at which the learning rate decays.
 
-3. The teacher labels are noisy. A noisy teacher would of course be unable to impart good information to the student. This hypothesis is unlikely to be true for the LeNet teacher, which has a 98% accuracy rating. As far as accurate labels go, this is quite high for any dataset.
+3. The teacher labels are noisy. A noisy teacher would of course be unable to impart good information to the student. This hypothesis is unlikely to be true for the LeNet teacher on the MNIST dataset, which has a 98% accuracy rating. As far as accurate labels go, this is quite high for any dataset. On the CIFAR10 dataset, however, where the teacher model has an accuracy rating of 80%, it is entirely possible that the teacher labels are noisy, and contributed to the early plateau of the model trained using teacher-student loss.
 
-4. Poorly calibrated teacher labels. Unlike noisy labels, which might simply be incorrect (especially for the rest of the probability distribution not corresponding to the correct label), poorly calibrated labels assign probabilities to classes in the correct order, but not in the correct magnitude. As an example, suppose there is an unfair coin with 80% probability of heads and 20% probability of tails. A model which tries to predict whether the next coin flip is heads can generate a probability distribution that can assign heads a probability anywhere between 51% and 100%. The model would then predict heads, and if the next coin flip was heads, the model would be correct and avoid being penalized. Even though the actual values in its probability distribution are totally incorrect, the model performs well because it has its probabilities in the correct order! This is known as a calibration problem.
+4. Poorly calibrated teacher labels. Unlike noisy labels, which might be totally incorrect, poorly calibrated labels assign probabilities to classes in the correct order, but not in the correct magnitude. As an example, suppose there is an unfair coin with 80% probability of heads and 20% probability of tails. A model which tries to predict whether the next coin flip is heads can generate a probability distribution that can assign heads a probability anywhere between 51% and 100%. The model would then predict heads, and if the next coin flip was heads, the model would be correct and avoid being penalized. Even though the actual values in its probability distribution are totally incorrect, the model performs well because it has its probabilities in the correct order! This is known as a calibration problem, and could easily be introducing improper gradient updates.
 
-The output of a neural network is interpreted as a probability there is no reason why we should assume these softmax probabilities are properly calibrated. After all, only the largest probability a model reports matters when calculating the loss using a normal loss function. As long as the neural network makes sure the true class is assigned the largest probability, the size and relative distances between all other probabilities are irrelevant.
+The output of the final fully connected layer of a neural network is converted to a probability by passing through a softmax function, which will scale the values such that order between values is preserved (the largest value remains the largest value, the second largest value remains the second largest, and so on). There is no reason why we should assume these softmax probabilities are properly calibrated. After all, as long as the neural network makes sure the true class is assigned the largest probability in the distribution, it is not penalized for assigning any size it likes to any of the other probabilities.
+
+The calibration of the model probabilities can be adjusted by adjusting the temperature parameter in the softmax function. A higher temperature brings all probabilities in the distribution closer together, whereas a lower temperature moves the value of the highest probability in the distribution closer to 1, while moving all other values closer to 0. No matter the temperature, the order of the values is preserved. Below is an example of the softmax probability distribution using different temperature parameters.
+
+```{r}
+labels <- c("Panther", "Cat", "Truck", "Goose")
+
+# not numerically optimized, don't try this at home
+
+softmax <- function(vector, temp){
+  return(exp(vector / temp) / sum(exp(vector / temp)))
+}
+
+fully_connected_output <- c(7, 2, 3, 20)
+temperatures <- c(0.5, 1, 2, 20)
+
+softmax_matrix <- map(temperatures, softmax, vector = fully_connected_output) %>%
+  do.call(what=rbind) %>%
+  rbind(fully_connected_output, .)
+dimnames(softmax_matrix) <- list(c("Fully Connected Output", paste("Temperature =", temperatures)), labels)
+
+softmax_matrix
+```
+Using a temperature of 1 reveals that a typical fully connected output results in a softmax probability distribution in which the highest probability tends to be very close to 1, and the other values are very close to 0, but not 0. Since the cross-entropy loss takes the logarithm of these near-zero values, resulting in large negative numbers which are then multiplied by negative one, the representation of non-label classes in gradient updates can be disproportionately high. It's possible that using a higher temperature for both the teacher and student soft labels can smooth out the training. This would also help for less accurate teacher models which frequently get the top1 accuracy wrong (such as VGG16, with a top-1 accuracy of 68%) but have high top-5 accuracy rates. Different temperature values should be tested to find the optimal temperature value; in these experiments, a temperature of 1 was used, but Hinton proposes a temperature of 20.
+
+Conclusion
+----
+In sum, the principle of teacher-student training is sound, with models converging using teacher soft labels. While the performance of teacher-student training is inferior to that of normal training, it is possible that with a few implementation tweaks, teacher-student training can perform better than normal training.
+
+As it is now, it appears teacher-student training, implemented naively, only provides value as a training speedup during the beginning and middle stages of training. Teacher-student loss should be downweighted during the later stages of training as it is possible that the teacher soft labels begin to provide more noise than signal.
+
+The idea that a student model would be able to closely approximate the decision surface of the teacher could not be confirmed in practice, as teacher-student cross-entropy remained high in all the experiments performed.
