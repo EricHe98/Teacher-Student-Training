@@ -214,3 +214,5 @@ In sum, the principle of teacher-student training is sound, with models convergi
 As it is now, it appears teacher-student training, implemented naively, only provides value as a training speedup during the beginning and middle stages of training. Teacher-student loss should be downweighted during the later stages of training as it is possible that the teacher soft labels begin to provide more noise than signal.
 
 The idea that a student model would be able to closely approximate the decision surface of the teacher could not be confirmed in practice, as teacher-student cross-entropy remained high in all the experiments performed.
+
+The work currently done on teacher-student training remains preliminary. Further work would investigate teacher-student training on larger datasets, with different learning rates, with different model architectures, with large disparities in model sizes between the teacher and student, and with different softmax temperatures.
