@@ -142,19 +142,19 @@ The accuracy score rises highest for a lambda value of 0, which corresponds to a
 
 We find similar results on CIFAR10. The models converge using both training methods, but higher weightings on teacher-student training leads to slower and noisier training. 
 
-CIFAR10 GRAPHS HERE
+![](cifar10/graphs/cifar10_loss_comparison.png)
 
 What is interesting here, however, is that using smaller lambda values on the teacher-student training yields better performance than normal training. In this graph, we can see that the lambda values of 0.1 and 0.05 surpass the performance of normal training. Since teacher-student cross entropy is larger than that of normal cross-entropy, a lambda value of 0.1 on the CIFAR10 dataset in fact corresponds to an approximately equal absolute weighting of the two loss functions; a lambda value of 0.5 corresponds to approximately a 67% weighting on the normal loss function and a 33% weighting on the teacher-student loss function.
 
-OTHER CIFAR10 GRAPH HERE
+![](cifar10/graphs/cifar10-training-comparison.png)
 
 On the CIFAR10 dataset, it is possible to test the model compression hypothesis of teacher-student training by taking the neural network previously used for CIFAR10, and chopping off one of the 3 convolutional layers. 
 
-SLIDE HERE
+![Image source: http://www.cnblogs.com/yymn/p/4589133.html](cifar10/mini_description.png)
 
 The smaller model, when trained on its own, is able to achieve a 78% accuracy in 20000 iterations, whereas the original model reached between 80 and 81%. Below shows the standalone performance of the smaller model in comparison to the performance of a mini model trained using teacher-student loss at a lambda-value of 0.1 (roughly equal weighting).
 
-CIFAR10 MINI PERFORMANCE
+![](cifar10/graphs/mini_comparison.png)
 
 Again, we find an interesting result: the model trained using teacher-student loss outperforms the standalone model for the first 20000 iterations. After that, however, the standalone model surpasses the teacher-student model, and plateaus at 78%, with the teacher-student model plateaud at 77%. This test was run several times with matching results. This suggests that teacher-student loss does improve the model's ability to learn distinctions between classes - but only up to a point. Past that point, the student model is better off training on the hard labels.
 
