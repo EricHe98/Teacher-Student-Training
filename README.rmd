@@ -204,6 +204,13 @@ softmax_matrix <- map(temperatures, softmax, vector = fully_connected_output) %>
 dimnames(softmax_matrix) <- list(c("Fully Connected Output", paste("Temperature =", temperatures)), labels)
 
 softmax_matrix
+
+##                             Panther          Cat        Truck      Goose
+## Fully Connected Output 7.000000e+00 2.000000e+00 3.000000e+00 20.0000000
+## Temperature = 0.5      5.109089e-12 2.319523e-16 1.713908e-15  1.0000000
+## Temperature = 1        2.260324e-06 1.522994e-08 4.139928e-08  0.9999977
+## Temperature = 2        1.500692e-03 1.231843e-04 2.030966e-04  0.9981730
+## Temperature = 20       2.215785e-01 1.725655e-01 1.814132e-01  0.4244427
 ```
 Using a temperature of 1 reveals that a typical fully connected output results in a softmax probability distribution in which the highest probability tends to be very close to 1, and the other values are very close to 0, but not 0. Since the cross-entropy loss takes the logarithm of these near-zero values, resulting in large negative numbers which are then multiplied by negative one, the representation of non-label classes in gradient updates can be disproportionately high. It's possible that using a higher temperature for both the teacher and student soft labels can smooth out the training. Probability distributions with more uniform values would also help for less accurate teacher models with low top-1 accuracy rates (such as VGG16, with a top-1 accuracy of 71.5%) but have high top-5 accuracy rates. Different temperature values should be tested to find the optimal temperature value; in these experiments, a temperature of 1 was used, but Hinton proposes a temperature of 20.
 
